@@ -1,20 +1,25 @@
 import axios from 'axios';
+import store from '../store';
 
 const api = axios.create({
-  // Use relative URL — Vite proxy forwards /api/* to http://localhost:5000
-  // This avoids the service worker intercepting cross-origin requests
   baseURL: '/api',
   timeout: 10000,
 });
 
-// Attach JWT token to every request automatically
+// Read token from Redux store directly — not localStorage
+// This is the most reliable source since Redux is always in sync
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('zammarket_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  // Primary: get from Redux store (always current)
+  const state = store.getState();
+  const token = state.auth?.token || localStorage.getItem('zammarket_token');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
   return config;
 });
 
-// Handle 401 globally — clear storage and redirect to login
 api.interceptors.response.use(
   (response) => response,
   (error) => {

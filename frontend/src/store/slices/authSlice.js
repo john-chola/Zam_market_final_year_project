@@ -20,6 +20,7 @@ export const registerUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const { data } = await api.post('/auth/register', userData);
+      // Always persist token to localStorage on register
       localStorage.setItem('zammarket_token', data.token);
       localStorage.setItem('zammarket_user', JSON.stringify(data.user));
       return data;
@@ -34,6 +35,7 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const { data } = await api.post('/auth/login', credentials);
+      // Always persist token to localStorage on login
       localStorage.setItem('zammarket_token', data.token);
       localStorage.setItem('zammarket_user', JSON.stringify(data.user));
       return data;
@@ -68,8 +70,8 @@ export const upgradeToSeller = createAsyncThunk(
   }
 );
 
-// ── Slice ──────────────────────────────────────────────────
-
+// ── Rehydrate from localStorage on app start ───────────────
+const storedToken = localStorage.getItem('zammarket_token');
 const storedUser = (() => {
   try { return JSON.parse(localStorage.getItem('zammarket_user')); }
   catch { return null; }
@@ -79,8 +81,8 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user: storedUser,
-    token: localStorage.getItem('zammarket_token'),
-    isAuthenticated: !!localStorage.getItem('zammarket_token'),
+    token: storedToken,                    // token lives in Redux state
+    isAuthenticated: !!storedToken,
     loading: false,
     error: null,
     otpSent: false,
@@ -96,13 +98,8 @@ const authSlice = createSlice({
       localStorage.removeItem('zammarket_token');
       localStorage.removeItem('zammarket_user');
     },
-    clearError(state) {
-      state.error = null;
-    },
-    resetOtp(state) {
-      state.otpSent = false;
-      state.otpPhone = null;
-    },
+    clearError(state) { state.error = null; },
+    resetOtp(state) { state.otpSent = false; state.otpPhone = null; },
   },
   extraReducers: (builder) => {
     builder
@@ -121,7 +118,7 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.token;  // store in Redux state
         state.isAuthenticated = true;
         state.otpSent = false;
       })
@@ -134,7 +131,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.token;  // store in Redux state
         state.isAuthenticated = true;
       })
       .addCase(loginUser.rejected, (state, action) => {

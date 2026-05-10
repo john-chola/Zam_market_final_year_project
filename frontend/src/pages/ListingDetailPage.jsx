@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchListing, clearCurrent } from '../store/slices/listingSlice';
-import { startConversation } from '../store/slices/chatSlice';
+import { startConversation, clearError } from '../store/slices/chatSlice';
 
 const fmtArea = (n) => (n ? n.replace('_', ' ') : 'Unknown');
 
@@ -12,17 +12,25 @@ export default function ListingDetailPage() {
   const { id } = useParams();
   const { current: listing, loading, error } = useSelector((s) => s.listings);
   const { user } = useSelector((s) => s.auth);
-  const { loading: chatLoading } = useSelector((s) => s.chat);
+  const { loading: chatLoading, error: chatError } = useSelector((s) => s.chat);
 
   useEffect(() => {
     dispatch(fetchListing(id));
-    return () => dispatch(clearCurrent());
+    return () => { dispatch(clearCurrent()); dispatch(clearError()); };
   }, [id, dispatch]);
 
   const handleMessage = async () => {
     if (!user) { navigate('/login'); return; }
-    const result = await dispatch(startConversation(id)).unwrap();
-    navigate(`/chat/${result.conversation._id}`);
+    dispatch(clearError());
+    try {
+      // Pass listing._id explicitly — not the URL param 'id'
+      // which could be a string while listing._id is an ObjectId
+      const result = await dispatch(startConversation(listing._id.toString())).unwrap();
+      navigate(`/chat/${result.conversation._id}`);
+    } catch (err) {
+      // Error is shown via chatError from Redux state
+      console.error('startConversation failed:', err);
+    }
   };
 
   if (loading) return (
@@ -67,7 +75,8 @@ export default function ListingDetailPage() {
           marginBottom: 14 }}>
           {listing.image?.url
             ? <img src={listing.image.url} alt={listing.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => { e.target.style.display = 'none'; }} />
             : <span style={{ fontSize: 64 }}>🪵</span>}
         </div>
 
@@ -118,7 +127,7 @@ export default function ListingDetailPage() {
             : null}
         </div>
 
-        {/* Seller + contact */}
+        {/* Seller card */}
         <div className="card" style={{ marginBottom: 12 }}>
           <p style={{ fontSize: 11, color: 'var(--ash)', textTransform: 'uppercase',
             letterSpacing: '0.08em', marginBottom: 10 }}>Seller</p>
@@ -144,17 +153,29 @@ export default function ListingDetailPage() {
             </div>
           </div>
 
-          {/* Buyer: message or call */}
+          {/* Error display */}
+          {chatError && (
+            <div className="error-msg" style={{ marginBottom: 10 }}>
+              {chatError}
+            </div>
+          )}
+
+          {/* Buyer actions */}
           {!isOwner && statusActive && (
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={handleMessage} disabled={chatLoading}
-                className="btn btn-ember" style={{ flex: 2 }}>
-                {chatLoading ? '...' : '💬 Message Seller'}
+              <button
+                onClick={handleMessage}
+                disabled={chatLoading}
+                className="btn btn-ember"
+                style={{ flex: 2 }}
+              >
+                {chatLoading ? <span className="spinner" /> : '💬 Message Seller'}
               </button>
               {seller?.phone && (
-                <a href={`tel:${seller.phone}`} className="btn btn-outline"
-                  style={{ flex: 1, textDecoration: 'none', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center' }}>
+                <a href={`tel:${seller.phone}`}
+                  className="btn btn-outline"
+                  style={{ flex: 1, textDecoration: 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   📞 Call
                 </a>
               )}
@@ -162,8 +183,9 @@ export default function ListingDetailPage() {
           )}
 
           {isOwner && (
-            <button onClick={() => navigate('/listings/my')}
-              className="btn btn-ember">My Listings</button>
+            <button onClick={() => navigate('/listings/my')} className="btn btn-ember">
+              My Listings
+            </button>
           )}
         </div>
 

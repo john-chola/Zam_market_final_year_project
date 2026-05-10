@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/^(\+260|0)(9[5-7]|7[6-9])\d{7}$/, 'Enter a valid Zambian phone number'],
     },
-
     name: {
       type: String,
       required: [true, 'Name is required'],
@@ -18,20 +17,17 @@ const userSchema = new mongoose.Schema(
       minlength: [2, 'Name must be at least 2 characters'],
       maxlength: [60, 'Name cannot exceed 60 characters'],
     },
-
     password: {
       type: String,
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
-      select: false, // never returned in queries by default
+      select: false,
     },
-
     role: {
       type: String,
       enum: ['buyer', 'seller', 'admin'],
       default: 'buyer',
     },
-
     neighbourhood: {
       type: String,
       enum: [
@@ -41,23 +37,18 @@ const userSchema = new mongoose.Schema(
       ],
       default: 'Other',
     },
-
-    // Seller-specific fields
     sellerProfile: {
       businessName: { type: String, trim: true },
       description: { type: String, maxlength: 300 },
-      isVerified: { type: Boolean, default: false },  // admin-granted badge
+      isVerified: { type: Boolean, default: false },
       totalSales: { type: Number, default: 0 },
       rating: { type: Number, default: 0, min: 0, max: 5 },
       ratingCount: { type: Number, default: 0 },
     },
-
-    // Blockchain trust score (Sprint 3 will expand this)
     trustScore: {
       score: { type: Number, default: 50, min: 0, max: 100 },
-      chainHash: { type: String, default: '' }, // SHA-256 hash of last tx
+      chainHash: { type: String, default: '' },
     },
-
     isActive: { type: Boolean, default: true },
   },
   {
@@ -78,12 +69,18 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// ── Virtual: public profile (no sensitive data) ────────────
+// ── Virtual: public profile ────────────────────────────────
+// SAFE version — guards against undefined fields
+// (phone may be undefined when user is populated with limited select fields)
 userSchema.virtual('publicProfile').get(function () {
+  const maskedPhone = this.phone
+    ? this.phone.replace(/(\+260|0)(\d{2})(\d{4})(\d{3})/, '$1$2****$4')
+    : null;
+
   return {
     id: this._id,
     name: this.name,
-    phone: this.phone.replace(/(\+260|0)(\d{2})(\d{4})(\d{3})/, '$1$2****$4'),
+    phone: maskedPhone,
     role: this.role,
     neighbourhood: this.neighbourhood,
     sellerProfile: this.sellerProfile,
