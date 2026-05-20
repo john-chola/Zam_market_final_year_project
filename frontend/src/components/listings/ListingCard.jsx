@@ -68,7 +68,7 @@ export default function ListingCard({ listing, showActions = false, onStatusChan
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: '#888780' }}>
-            📍 {listing.neighbourhood?.replace('_', ' ')}
+             {listing.neighbourhood?.replace('_', ' ')}
           </span>
           {listing.seller?.trustScore?.score >= 70 && (
             <span style={{ fontSize: 11, background: '#EAF3DE', color: '#3B6D11',

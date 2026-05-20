@@ -5,74 +5,43 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-// ── Route imports ──────────────────────────────────────────
 const authRoutes    = require('./routes/auth');
 const userRoutes    = require('./routes/user');
 const listingRoutes = require('./routes/listing');
-
-// Chat routes — wrapped in try/catch so a missing file gives a clear error
-let chatRoutes;
-try {
-  chatRoutes = require('./routes/chat');
-  console.log('Chat routes loaded');
-} catch (e) {
-  console.error('Failed to load chat routes:', e.message);
-  process.exit(1);
-}
-
+const chatRoutes    = require('./routes/chat');
+const trustRoutes   = require('./routes/trust');
 const { errorHandler } = require('./middleware/errorHandler');
+const { initSocket }   = require('./utils/socket');
 
-// Socket — wrapped so we see the error clearly if socket.js is missing
-let initSocket;
-try {
-  ({ initSocket } = require('./utils/socket'));
-  console.log('Socket module loaded');
-} catch (e) {
-  console.error('Failed to load socket module:', e.message);
-  process.exit(1);
-}
-
-const app = express();
+const app        = express();
 const httpServer = http.createServer(app);
 
-// ── Middleware ─────────────────────────────────────────────
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-  ],
+  origin: ['http://localhost:5173','http://127.0.0.1:5173','http://localhost:3000'],
   credentials: true,
 }));
 app.use(express.json());
 app.use(morgan('dev'));
 
-// ── Routes ─────────────────────────────────────────────────
 app.use('/api/auth',     authRoutes);
 app.use('/api/users',    userRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/chat',     chatRoutes);
+app.use('/api/trust',    trustRoutes);
 
-app.get('/api/health', (req, res) =>
-  res.json({ status: 'ok', message: 'ZamMarket API Sprint 4', timestamp: new Date() })
+app.get('/api/health', (_, res) =>
+  res.json({ status: 'ok', message: 'ZamMarket API Sprint 3+4', timestamp: new Date() })
 );
-
 app.use(errorHandler);
 
-// ── Start ──────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-
 mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log('MongoDB connected');
   initSocket(httpServer);
   console.log('Socket.io initialized');
-  httpServer.listen(PORT, '127.0.0.1', () => {
-    console.log(`ZamMarket API running on http://localhost:${PORT}`);
-  });
-}).catch((err) => {
-  console.error('MongoDB failed:', err.message);
-  process.exit(1);
-});
+  httpServer.listen(PORT, '127.0.0.1', () =>
+    console.log(`ZamMarket API running on http://localhost:${PORT}`)
+  );
+}).catch((err) => { console.error('MongoDB failed:', err.message); process.exit(1); });
 
 module.exports = app;

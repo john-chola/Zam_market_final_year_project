@@ -182,7 +182,7 @@ export default function ChatPage() {
             {other?.name || 'Chat'}
           </p>
           <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, margin: 0 }}>
-            📍 {other?.neighbourhood?.replace('_', ' ') || ''}
+             {other?.neighbourhood?.replace('_', ' ') || ''}
           </p>
         </div>
 
@@ -217,7 +217,7 @@ export default function ChatPage() {
       {!isOnline && (
         <div style={{ background: '#BA7517', padding: '8px 1.25rem',
           display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 14 }}>📵</span>
+          <span style={{ fontSize: 14 }}></span>
           <p style={{ color: 'white', fontSize: 12, margin: 0 }}>
             You are offline. Messages will be sent when you reconnect.
             {pendingCount > 0 && ` (${pendingCount} queued)`}
@@ -237,7 +237,7 @@ export default function ChatPage() {
 
         {!messagesLoading && messages.length === 0 && (
           <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-            <div style={{ fontSize: 36, marginBottom: 10 }}>👋</div>
+            <div style={{ fontSize: 36, marginBottom: 10 }}></div>
             <p style={{ color: 'var(--ash)', fontSize: 14 }}>
               Start the conversation — ask about availability, collection point, or price.
             </p>
@@ -265,7 +265,7 @@ export default function ChatPage() {
                   color: mine ? 'rgba(255,255,255,0.65)' : 'var(--ash)',
                   textAlign: 'right',
                 }}>
-                  {msg.offline ? '⏳ queued' :
+                  {msg.offline ? 'queued' :
                     new Date(msg.createdAt).toLocaleTimeString('en-ZM', {
                       hour: '2-digit', minute: '2-digit',
                     })}

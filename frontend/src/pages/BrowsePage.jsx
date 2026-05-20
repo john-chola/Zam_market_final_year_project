@@ -62,7 +62,7 @@ export default function BrowsePage() {
             <button type="button" className="btn btn-outline"
               style={{ width: 'auto', padding: '11px 14px' }}
               onClick={() => { setSearch(''); setSearchInput(''); }}>
-              ✕
+              X
             </button>
           )}
         </form>

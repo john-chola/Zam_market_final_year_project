@@ -14,8 +14,8 @@ export const initSocket = (token) => {
     reconnectionAttempts: 5,
   });
 
-  socket.on('connect', () => console.log('🟢 Socket connected'));
-  socket.on('disconnect', (reason) => console.log('🔴 Socket disconnected:', reason));
+  socket.on('connect', () => console.log('Socket connected'));
+  socket.on('disconnect', (reason) => console.log('Socket disconnected:', reason));
   socket.on('connect_error', (err) => console.warn('Socket error:', err.message));
 
   return socket;

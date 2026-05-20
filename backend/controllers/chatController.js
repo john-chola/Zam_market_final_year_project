@@ -54,7 +54,7 @@ exports.startConversation = async (req, res, next) => {
     res.status(201).json({ status: 'success', conversation });
 
   } catch (err) {
-    console.error('❌ startConversation error:', err.message);
+    console.error('startConversation error:', err.message);
     console.error(err.stack);
     next(err);
   }

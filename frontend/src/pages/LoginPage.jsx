@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser, clearError } from '../store/slices/authSlice';
+import './LoginPage.css';
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -22,14 +23,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-      <div style={{ width: '100%', maxWidth: 400 }}>
+    <div className="login-container">
+      <div className="login-wrapper">
 
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h1 style={{ fontSize: 26, color: 'var(--coal)' }}>
-            <span style={{ color: 'var(--ember)' }}>●</span> ZamMarket
+        <div className="login-header">
+          <h1 className="login-logo">
+            <span className="logo-dot"></span> ZamMarket
           </h1>
-          <p style={{ color: 'var(--ash)', fontSize: 14, marginTop: 4 }}>Welcome back</p>
+          <p className="login-subtitle">Welcome back</p>
         </div>
 
         <div className="card">
@@ -64,9 +65,9 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: 14, color: 'var(--ash)' }}>
+        <p className="login-footer">
           New to ZamMarket?{' '}
-          <Link to="/register" style={{ color: 'var(--ember)', textDecoration: 'none', fontWeight: 500 }}>
+          <Link to="/register" className="login-link">
             Create account
           </Link>
         </p>

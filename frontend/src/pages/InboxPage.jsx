@@ -53,7 +53,7 @@ export default function InboxPage() {
 
         {!loading && conversations.length === 0 && (
           <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>💬</div>
+            <div style={{ fontSize: 48, marginBottom: 12 }}></div>
             <h3 style={{ marginBottom: 8 }}>No messages yet</h3>
             <p style={{ color: 'var(--ash)', fontSize: 14 }}>
               {isSeller

@@ -140,7 +140,7 @@ export default function ListingDetailPage() {
             <div style={{ flex: 1 }}>
               <p style={{ fontWeight: 500 }}>{seller?.name || 'Unknown'}</p>
               <p style={{ fontSize: 12, color: 'var(--ash)' }}>
-                📍 {fmtArea(seller?.neighbourhood)}
+                 {fmtArea(seller?.neighbourhood)}
                 {seller?.sellerProfile?.isVerified ? ' · ✓ Verified' : ''}
               </p>
             </div>
@@ -169,14 +169,14 @@ export default function ListingDetailPage() {
                 className="btn btn-ember"
                 style={{ flex: 2 }}
               >
-                {chatLoading ? <span className="spinner" /> : '💬 Message Seller'}
+                {chatLoading ? <span className="spinner" /> : 'Message Seller'}
               </button>
               {seller?.phone && (
                 <a href={`tel:${seller.phone}`}
                   className="btn btn-outline"
                   style={{ flex: 1, textDecoration: 'none',
                     display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  📞 Call
+                    Call
                 </a>
               )}
             </div>

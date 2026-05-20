@@ -3,33 +3,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { requestOTP, registerUser, clearError, resetOtp } from '../store/slices/authSlice';
 import { isValidZambianPhone, normalizePhone, NEIGHBOURHOODS } from '../utils/validation';
+import './RegisterPage.css';
 
 const steps = ['Phone', 'Verify', 'Details'];
 
 function StepBar({ current }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className="step-bar">
       {steps.map((label, i) => (
         <React.Fragment key={label}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <div style={{
-              width: 30, height: 30, borderRadius: '50%',
-              background: i <= current ? 'var(--ember)' : 'var(--border)',
-              color: i <= current ? 'white' : 'var(--ash)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 13, fontWeight: 500,
-            }}>
-              {i < current ? '✓' : i + 1}
+          <div className="step-item">
+            <div className={`step-circle ${i < current ? 'completed' : i === current ? 'active' : 'pending'}`}>
+              {i < current ? '' : i + 1}
             </div>
-            <span style={{ fontSize: 11, marginTop: 4, color: i === current ? 'var(--ember)' : 'var(--ash)' }}>
+            <span className={`step-label ${i === current ? 'active' : 'inactive'}`}>
               {label}
             </span>
           </div>
           {i < steps.length - 1 && (
-            <div style={{
-              flex: 2, height: 2, marginBottom: 20,
-              background: i < current ? 'var(--ember)' : 'var(--border)',
-            }} />
+            <div className={`step-connector ${i < current ? 'completed' : 'pending'}`} />
           )}
         </React.Fragment>
       ))}
@@ -92,14 +84,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-      <div style={{ width: '100%', maxWidth: 420 }}>
+    <div className="register-container">
+      <div className="register-wrapper">
 
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h1 style={{ fontSize: 26, color: 'var(--coal)' }}>
-            <span style={{ color: 'var(--ember)' }}>●</span> ZamMarket
+        <div className="register-header">
+          <h1 className="register-logo">
+            <span className="logo-dot"></span> ZamMarket
           </h1>
-          <p style={{ color: 'var(--ash)', fontSize: 14, marginTop: 4 }}>Create your account</p>
+          <p className="register-subtitle">Create your account</p>
         </div>
 
         <div className="card">
@@ -119,7 +111,7 @@ export default function RegisterPage() {
                   required
                 />
                 {phoneErr && <p style={{ color: 'var(--ember)', fontSize: 12, marginTop: 4 }}>{phoneErr}</p>}
-                <p style={{ fontSize: 12, color: 'var(--ash)', marginTop: 4 }}>
+                <p className="helper-text">
                   Zamtel, Airtel, or MTN number. A verification code will be sent.
                 </p>
               </div>
@@ -136,13 +128,13 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   placeholder="6-digit code"
+                  className="otp-input"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  style={{ letterSpacing: '0.3em', fontSize: 22, textAlign: 'center' }}
                   required
                 />
-                <p style={{ fontSize: 12, color: 'var(--ash)', marginTop: 6 }}>
-                  💡 Dev mode: Check your backend terminal (Git Bash window running the server) for the code.
+                <p className="dev-hint">
+                   Dev mode: Check your backend terminal (Git Bash window running the server) for the code.
                 </p>
               </div>
               <button className="btn btn-ember" type="submit" disabled={otp.length !== 6}>
@@ -151,10 +143,9 @@ export default function RegisterPage() {
               <button
                 className="btn btn-outline"
                 type="button"
-                style={{ marginTop: 8 }}
                 onClick={() => { setStep(0); dispatch(resetOtp()); }}
               >
-                ← Change Number
+                 Change Number
               </button>
             </form>
           )}
@@ -186,24 +177,15 @@ export default function RegisterPage() {
 
               <div className="form-group">
                 <label className="form-label">I want to</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div className="role-selector">
                   {['buyer', 'seller'].map((r) => (
                     <button
                       key={r}
                       type="button"
+                      className={`role-btn ${role === r ? 'active' : 'inactive'}`}
                       onClick={() => setRole(r)}
-                      style={{
-                        padding: '10px 0',
-                        borderRadius: 'var(--radius)',
-                        border: role === r ? '2px solid var(--ember)' : '1px solid var(--border)',
-                        background: role === r ? 'var(--ember-light)' : 'var(--white)',
-                        color: role === r ? 'var(--ember-dark)' : 'var(--ash)',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        fontSize: 14,
-                      }}
                     >
-                      {r === 'buyer' ? '🛒 Buy' : '🪵 Sell'}
+                      {r === 'buyer' ? 'Buy' : '🪵 Sell'}
                     </button>
                   ))}
                 </div>
@@ -237,9 +219,9 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: 14, color: 'var(--ash)' }}>
+        <p className="register-footer">
           Already have an account?{' '}
-          <Link to="/login" style={{ color: 'var(--ember)', textDecoration: 'none', fontWeight: 500 }}>
+          <Link to="/login" className="register-link">
             Log in
           </Link>
         </p>

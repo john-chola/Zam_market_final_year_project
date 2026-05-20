@@ -29,7 +29,7 @@ const initSocket = (httpServer) => {
   io.on('connection', (socket) => {
     const userId = socket.userId;
     onlineUsers.set(userId, socket.id);
-    console.log(`🟢 Socket connected: ${userId}`);
+    console.log(`Socket connected: ${userId}`);
 
     socket.on('join_conversation', (conversationId) => {
       socket.join(conversationId);
@@ -106,7 +106,7 @@ const initSocket = (httpServer) => {
 
     socket.on('disconnect', () => {
       onlineUsers.delete(userId);
-      console.log(`🔴 Socket disconnected: ${userId}`);
+      console.log(`Socket disconnected: ${userId}`);
     });
   });
 
