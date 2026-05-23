@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchListings } from '../store/slices/listingSlice';
 import ListingCard from '../components/listings/ListingCard';
 import { NEIGHBOURHOODS } from '../utils/validation';
+import './BrowsePage.css';
 
 const ALL_NEIGHBOURHOODS = ['All', ...NEIGHBOURHOODS];
 
@@ -21,79 +22,82 @@ export default function BrowsePage() {
     dispatch(fetchListings({ neighbourhood, search }));
   }, [dispatch, neighbourhood, search]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setSearch(searchInput);
   };
 
-  return (
-    <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
+  const clearSearch = () => {
+    setSearch('');
+    setSearchInput('');
+  };
 
+  return (
+    <div className="browse-container">
       {/* Nav */}
-      <nav style={{ background: 'var(--coal)', padding: '1rem 1.5rem',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span onClick={() => navigate('/dashboard')}
-          style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, color: 'white',
-            fontSize: 20, cursor: 'pointer' }}>
-          <span style={{ color: 'var(--ember)' }}>●</span> ZamMarket
+      <nav className="browse-nav">
+        <span onClick={() => navigate('/dashboard')} className="browse-logo">
+          <span className="browse-logo-dot">●</span> ZamMarket
         </span>
         {user?.role === 'seller' && (
-          <button onClick={() => navigate('/listings/new')}
-            style={{ background: 'var(--ember)', color: 'white', border: 'none',
-              padding: '7px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
+          <button onClick={() => navigate('/listings/new')} className="btn-new-listing">
             + New Listing
           </button>
         )}
       </nav>
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '1.5rem' }}>
-
+      <div className="browse-content">
         {/* Search bar */}
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8, marginBottom: '1.25rem' }}>
-          <input type="text" placeholder="Search charcoal listings..."
-            value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
-            style={{ flex: 1 }} />
-          <button type="submit" className="btn btn-ember" style={{ width: 'auto', padding: '11px 20px' }}>
-            
+        <form onSubmit={handleSearch} className="search-form">
+          <input
+            type="text"
+            placeholder="Search charcoal listings..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="search-input"
+          />
+          <button type="submit" className="btn btn-ember btn-search">
+            🔍 Search
           </button>
           {search && (
-            <button type="button" className="btn btn-outline"
-              style={{ width: 'auto', padding: '11px 14px' }}
-              onClick={() => { setSearch(''); setSearchInput(''); }}>
-              X
+            <button
+              type="button"
+              className="btn btn-outline btn-clear-search"
+              onClick={clearSearch}
+              aria-label="Clear search"
+            >
+              ✕
             </button>
           )}
         </form>
 
         {/* Neighbourhood filter pills */}
-        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4,
-          marginBottom: '1.25rem', scrollbarWidth: 'none' }}>
+        <div className="filter-pills">
           {ALL_NEIGHBOURHOODS.map((n) => (
-            <button key={n} onClick={() => setNeighbourhood(n)}
-              style={{
-                padding: '5px 14px', borderRadius: 20, border: 'none',
-                background: neighbourhood === n ? 'var(--coal)' : 'white',
-                color: neighbourhood === n ? 'white' : 'var(--ash)',
-                fontSize: 12, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap',
-                border: neighbourhood === n ? 'none' : '1px solid var(--border)',
-                transition: 'all 0.15s',
-              }}>
+            <button
+              key={n}
+              onClick={() => setNeighbourhood(n)}
+              className={`filter-pill ${neighbourhood === n ? 'filter-pill-active' : ''}`}
+            >
               {n.replace('_', ' ')}
             </button>
           ))}
         </div>
 
         {/* Results summary */}
-        <div style={{ display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center', marginBottom: '1rem' }}>
-          <p style={{ fontSize: 13, color: 'var(--ash)' }}>
-            {loading ? 'Loading...' : `${pagination?.total || 0} listings found`}
+        <div className="results-summary">
+          <p className="results-text">
+            {loading
+              ? 'Loading...'
+              : `${pagination?.total || 0} listings found`}
             {neighbourhood !== 'All' && ` in ${neighbourhood.replace('_', ' ')}`}
             {search && ` for "${search}"`}
           </p>
-          <p style={{ fontSize: 12, color: 'var(--ash)' }}>Newest first</p>
+          <p className="results-sort">Newest first</p>
         </div>
 
         {/* Error state */}
@@ -101,14 +105,13 @@ export default function BrowsePage() {
 
         {/* Loading skeleton */}
         {loading && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
+          <div className="listings-grid">
             {[...Array(6)].map((_, i) => (
-              <div key={i} style={{ background: 'white', borderRadius: 14, overflow: 'hidden',
-                border: '1px solid var(--border)' }}>
-                <div style={{ height: 160, background: '#F0EFE8', animation: 'pulse 1.5s infinite' }} />
-                <div style={{ padding: '0.9rem' }}>
-                  <div style={{ height: 14, background: '#F0EFE8', borderRadius: 4, marginBottom: 8 }} />
-                  <div style={{ height: 20, background: '#F0EFE8', borderRadius: 4, width: '60%' }} />
+              <div key={i} className="skeleton-card">
+                <div className="skeleton-image" />
+                <div className="skeleton-content">
+                  <div className="skeleton-line skeleton-line-short" />
+                  <div className="skeleton-line skeleton-line-long" />
                 </div>
               </div>
             ))}
@@ -117,7 +120,7 @@ export default function BrowsePage() {
 
         {/* Listings grid */}
         {!loading && items.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
+          <div className="listings-grid">
             {items.map((listing) => (
               <ListingCard key={listing._id} listing={listing} />
             ))}
@@ -126,16 +129,19 @@ export default function BrowsePage() {
 
         {/* Empty state */}
         {!loading && items.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🪵</div>
-            <h3 style={{ marginBottom: 8, color: 'var(--coal)' }}>No listings found</h3>
-            <p style={{ color: 'var(--ash)', fontSize: 14 }}>
-              {search ? `No results for "${search}"` : `No charcoal listings in ${neighbourhood.replace('_', ' ')} yet`}
+          <div className="empty-state">
+            <div className="empty-state-icon">🪵</div>
+            <h3 className="empty-state-title">No listings found</h3>
+            <p className="empty-state-description">
+              {search
+                ? `No results for "${search}"`
+                : `No charcoal listings in ${neighbourhood.replace('_', ' ')} yet`}
             </p>
             {user?.role === 'seller' && (
-              <button onClick={() => navigate('/listings/new')}
-                className="btn btn-ember"
-                style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
+              <button
+                onClick={() => navigate('/listings/new')}
+                className="btn btn-ember btn-post-first"
+              >
                 Post the first listing
               </button>
             )}
@@ -144,22 +150,24 @@ export default function BrowsePage() {
 
         {/* Load more */}
         {pagination?.hasMore && !loading && (
-          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-            <button className="btn btn-outline"
-              style={{ width: 'auto', padding: '10px 28px' }}
-              onClick={() => dispatch(fetchListings({ neighbourhood, search, page: pagination.page + 1 }))}>
+          <div className="load-more">
+            <button
+              className="btn btn-outline btn-load-more"
+              onClick={() =>
+                dispatch(
+                  fetchListings({
+                    neighbourhood,
+                    search,
+                    page: pagination.page + 1,
+                  })
+                )
+              }
+            >
               Load more listings
             </button>
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
     </div>
   );
 }

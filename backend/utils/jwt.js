@@ -16,6 +16,7 @@ const createAuthResponse = (user, res, statusCode = 200) => {
     status: 'success',
     token,
     user: {
+      _id: user._id,
       id: user._id,
       name: user.name,
       phone: user.phone,

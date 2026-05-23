@@ -2,32 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../utils/api';
+import './TrustScorePage.css';
 
 const EVENT_LABELS = {
-  LISTING_CREATED:   { label: 'Listing posted',         icon: '', color: '#3B6D11' },
-  CONVERSATION_DONE: { label: 'Conversation completed',  icon: '', color: '#185FA5' },
-  BUYER_RATING_5:    { label: '5-star rating received',  icon: '', color: '#BA7517' },
-  BUYER_RATING_4:    { label: '4-star rating received',  icon: '', color: '#BA7517' },
-  BUYER_RATING_3:    { label: '3-star rating received',  icon: '', color: '#888780' },
-  BUYER_RATING_1:    { label: '1-star rating received',  icon: '', color: '#A32D2D' },
-  ADMIN_VERIFIED:    { label: 'Admin verified',          icon: '',  color: '#3B6D11' },
+  LISTING_CREATED: { label: 'Listing posted', icon: '📦', color: '#3B6D11' },
+  CONVERSATION_DONE: { label: 'Conversation completed', icon: '💬', color: '#185FA5' },
+  BUYER_RATING_5: { label: '5-star rating received', icon: '⭐', color: '#BA7517' },
+  BUYER_RATING_4: { label: '4-star rating received', icon: '⭐', color: '#BA7517' },
+  BUYER_RATING_3: { label: '3-star rating received', icon: '⭐', color: '#888780' },
+  BUYER_RATING_1: { label: '1-star rating received', icon: '⭐', color: '#A32D2D' },
+  ADMIN_VERIFIED: { label: 'Admin verified', icon: '✓', color: '#3B6D11' },
 };
 
 export default function TrustScorePage() {
   const { sellerId } = useParams();
-  const navigate     = useNavigate();
-  const { user }     = useSelector((s) => s.auth);
+  const navigate = useNavigate();
+  const { user } = useSelector((s) => s.auth);
 
-  // Fix: user object may use 'id' or '_id' depending on source
-  const myId     = user?._id || user?.id;
-  // Use URL param if present, otherwise fall back to logged-in user
+  const myId = user?._id || user?.id;
   const targetId = sellerId && sellerId !== 'undefined' ? sellerId : myId;
 
-  const [data, setData]       = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState('');
-  const [rating, setRating]   = useState(0);
-  const [rated, setRated]     = useState(false);
+  const [error, setError] = useState('');
+  const [rating, setRating] = useState(0);
+  const [rated, setRated] = useState(false);
 
   useEffect(() => {
     if (!targetId || targetId === 'undefined') {
@@ -37,8 +36,12 @@ export default function TrustScorePage() {
     }
     setLoading(true);
     setError('');
-    api.get(`/trust/${targetId}`)
-      .then(({ data: d }) => { setData(d); setLoading(false); })
+    api
+      .get(`/trust/${targetId}`)
+      .then(({ data: d }) => {
+        setData(d);
+        setLoading(false);
+      })
       .catch((err) => {
         setError(err.response?.data?.message || 'Could not load trust data');
         setLoading(false);
@@ -58,106 +61,110 @@ export default function TrustScorePage() {
     }
   };
 
-  if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', background: 'var(--cream)' }}>
-      <p style={{ color: 'var(--ash)' }}>Loading trust data...</p>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="trust-loading">
+        <p>Loading trust data...</p>
+      </div>
+    );
 
-  const score   = data?.chain?.score ?? 50;
+  const score = data?.chain?.score ?? 50;
   const isValid = data?.chain?.isValid;
-  const blocks  = data?.chain?.blocks || [];
-  const seller  = data?.seller;
-  // Fix: compare both _id and id
-  const isSelf  = myId && (myId === targetId || myId === seller?.id);
+  const blocks = data?.chain?.blocks || [];
+  const seller = data?.seller;
+  const isSelf = myId && (myId === targetId || myId === seller?.id);
 
-  const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--ember)' : '#E24B4A';
-  const scoreLabel = score >= 70 ? 'Trusted Seller'
-    : score >= 40 ? 'Building Reputation' : 'New Seller';
+  const getScoreCategory = (score) => {
+    if (score >= 70) return 'trusted';
+    if (score >= 40) return 'building';
+    return 'new';
+  };
+
+  const scoreCategory = getScoreCategory(score);
+  const scoreLabel =
+    score >= 70
+      ? 'Trusted Seller'
+      : score >= 40
+      ? 'Building Reputation'
+      : 'New Seller';
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
-      <nav style={{ background: 'var(--coal)', padding: '1rem 1.5rem',
-        display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button onClick={() => navigate(-1)}
-          style={{ background: 'transparent', border: 'none', color: 'white',
-            fontSize: 20, cursor: 'pointer' }}>←</button>
-        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800,
-          color: 'white', fontSize: 18 }}>Trust Score</span>
+    <div className="trust-container">
+      <nav className="trust-nav">
+        <button onClick={() => navigate(-1)} className="trust-back-btn" aria-label="Go back">
+          ←
+        </button>
+        <span className="trust-nav-title">Trust Score</span>
       </nav>
 
-      <div style={{ maxWidth: 520, margin: '0 auto', padding: '1.5rem' }}>
-
+      <div className="trust-content">
         {error && <div className="error-msg">{error}</div>}
 
         {/* Score card */}
-        <div className="card" style={{ textAlign: 'center', marginBottom: 14, padding: '2rem 1.5rem' }}>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 72, fontWeight: 800,
-            color: scoreColor, lineHeight: 1, marginBottom: 4 }}>
-            {score}
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--ash)', marginBottom: 4 }}>out of 100</p>
-          <p style={{ fontSize: 14, fontWeight: 500, color: scoreColor, marginBottom: 16 }}>
-            {scoreLabel}
-          </p>
+        <div className="card trust-score-card">
+          <div className={`trust-score-value ${scoreCategory}`}>{score}</div>
+          <p className="trust-score-out-of">out of 100</p>
+          <p className={`trust-score-label ${scoreCategory}`}>{scoreLabel}</p>
 
-          <div style={{ height: 10, background: 'var(--border)', borderRadius: 5,
-            overflow: 'hidden', marginBottom: 16 }}>
-            <div style={{ height: '100%', width: `${score}%`, background: scoreColor,
-              borderRadius: 5, transition: 'width 1s ease' }} />
+          <div className="trust-progress-bar">
+            <div
+              className={`trust-progress-fill ${scoreCategory}`}
+              style={{ width: `${score}%` }}
+            />
           </div>
 
-          {/* How score is built */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 8, marginBottom: 16 }}>
+          {/* Score breakdown */}
+          <div className="trust-breakdown">
             {[
-              { label: 'Listings', value: blocks.filter(b => b.event?.type === 'LISTING_CREATED').length, icon: '📦' },
-              { label: 'Chats', value: blocks.filter(b => b.event?.type === 'CONVERSATION_DONE').length, icon: '💬' },
-              { label: 'Ratings', value: blocks.filter(b => b.event?.type?.startsWith('BUYER_RATING')).length, icon: '⭐' },
+              {
+                label: 'Listings',
+                value: blocks.filter((b) => b.event?.type === 'LISTING_CREATED').length,
+                icon: '📦',
+              },
+              {
+                label: 'Chats',
+                value: blocks.filter((b) => b.event?.type === 'CONVERSATION_DONE').length,
+                icon: '💬',
+              },
+              {
+                label: 'Ratings',
+                value: blocks.filter((b) => b.event?.type?.startsWith('BUYER_RATING')).length,
+                icon: '⭐',
+              },
             ].map(({ label, value, icon }) => (
-              <div key={label} style={{ background: 'var(--cream)', borderRadius: 8, padding: '8px' }}>
-                <div style={{ fontSize: 16 }}>{icon}</div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18 }}>{value}</div>
-                <div style={{ fontSize: 11, color: 'var(--ash)' }}>{label}</div>
+              <div key={label} className="breakdown-item">
+                <div className="breakdown-icon">{icon}</div>
+                <div className="breakdown-value">{value}</div>
+                <div className="breakdown-label">{label}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{
-              background: isValid ? 'var(--green-light)' : '#FCEBEB',
-              color: isValid ? 'var(--green)' : '#A32D2D',
-              fontSize: 12, fontWeight: 500, padding: '4px 12px', borderRadius: 20,
-            }}>
-              {isValid ? 'Chain Valid' : 'Chain Invalid'}
+          <div className="trust-badges">
+            <span className={`badge ${isValid ? 'badge-valid' : 'badge-invalid'}`}>
+              {isValid ? '✓ Chain Valid' : '⚠ Chain Invalid'}
             </span>
             {seller?.isVerified && (
-              <span style={{ background: 'var(--green-light)', color: 'var(--green)',
-                fontSize: 12, fontWeight: 500, padding: '4px 12px', borderRadius: 20 }}>
-                Verified Seller
-              </span>
+              <span className="badge badge-verified">✓ Verified Seller</span>
             )}
           </div>
         </div>
 
         {/* How to improve score */}
         {blocks.length === 0 && (
-          <div className="card" style={{ marginBottom: 14 }}>
-            <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 10 }}>
-              How to build your trust score
-            </p>
+          <div className="card trust-guide-card">
+            <p className="trust-guide-title">How to build your trust score</p>
             {[
-              { icon: '', action: 'Post a listing', points: '+2 pts each' },
-              { icon: '', action: 'Complete a conversation', points: '+5 pts each' },
-              { icon: '', action: 'Receive a 5-star rating', points: '+8 pts each' },
-              { icon: '',  action: 'Get admin verified', points: '+15 pts once' },
+              { icon: '📦', action: 'Post a listing', points: '+2 pts each' },
+              { icon: '💬', action: 'Complete a conversation', points: '+5 pts each' },
+              { icon: '⭐', action: 'Receive a 5-star rating', points: '+8 pts each' },
+              { icon: '✓', action: 'Get admin verified', points: '+15 pts once' },
             ].map(({ icon, action, points }) => (
-              <div key={action} style={{ display: 'flex', justifyContent: 'space-between',
-                alignItems: 'center', padding: '8px 0',
-                borderBottom: '1px solid var(--border)' }}>
-                <span style={{ fontSize: 13 }}>{icon} {action}</span>
-                <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 500 }}>{points}</span>
+              <div key={action} className="trust-guide-item">
+                <span className="trust-guide-action">
+                  {icon} {action}
+                </span>
+                <span className="trust-guide-points">{points}</span>
               </div>
             ))}
           </div>
@@ -165,17 +172,15 @@ export default function TrustScorePage() {
 
         {/* Seller info */}
         {seller && (
-          <div className="card" style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--ember)',
-                color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16 }}>
+          <div className="card trust-seller-card">
+            <div className="trust-seller-info">
+              <div className="trust-seller-avatar">
                 {seller.name?.charAt(0)?.toUpperCase() || '?'}
               </div>
               <div>
-                <p style={{ fontWeight: 500 }}>{seller.name}</p>
-                <p style={{ fontSize: 12, color: 'var(--ash)' }}>
-                   {(seller.neighbourhood || '').replace('_', ' ')} · {blocks.length} trust events
+                <p className="trust-seller-name">{seller.name}</p>
+                <p className="trust-seller-meta">
+                  {(seller.neighbourhood || '').replace('_', ' ')} · {blocks.length} trust events
                 </p>
               </div>
             </div>
@@ -184,44 +189,41 @@ export default function TrustScorePage() {
 
         {/* Rate seller — buyers only, not viewing own profile */}
         {!isSelf && user && !rated && (
-          <div className="card" style={{ marginBottom: 14 }}>
-            <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Rate this seller</p>
-            <p style={{ fontSize: 12, color: 'var(--ash)', marginBottom: 12 }}>
+          <div className="card trust-rating-card">
+            <p className="trust-rating-title">Rate this seller</p>
+            <p className="trust-rating-description">
               Your rating is recorded on the blockchain and cannot be changed.
             </p>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <div className="trust-stars">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} onClick={() => handleRate(star)}
-                  style={{
-                    width: 46, height: 46, borderRadius: '50%', border: 'none',
-                    background: rating >= star ? '#BA7517' : 'var(--border)',
-                    fontSize: 20, cursor: 'pointer', transition: 'all 0.15s',
-                    transform: rating >= star ? 'scale(1.1)' : 'scale(1)',
-                  }}>⭐</button>
+                <button
+                  key={star}
+                  onClick={() => handleRate(star)}
+                  className={`trust-star-btn ${rating >= star ? 'star-active' : 'star-inactive'}`}
+                >
+                  ⭐
+                </button>
               ))}
             </div>
           </div>
         )}
 
         {rated && (
-          <div style={{ background: 'var(--green-light)', border: '1px solid var(--green)',
-            borderRadius: 10, padding: '10px 14px', marginBottom: 14, textAlign: 'center',
-            fontSize: 13, color: 'var(--green)', fontWeight: 500 }}>
+          <div className="trust-rated-banner">
             ✓ Rating recorded on blockchain. Trust score updated.
           </div>
         )}
 
         {/* Blockchain event chain */}
-        <div className="card">
-          <p style={{ fontSize: 11, color: 'var(--ash)', textTransform: 'uppercase',
-            letterSpacing: '0.08em', marginBottom: 12 }}>
+        <div className="card trust-chain-card">
+          <p className="trust-chain-title">
             Blockchain History · {blocks.length} blocks
           </p>
 
           {blocks.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>🔗</div>
-              <p style={{ color: 'var(--ash)', fontSize: 13 }}>
+            <div className="trust-chain-empty">
+              <div className="trust-chain-empty-icon">🔗</div>
+              <p className="trust-chain-empty-text">
                 No events yet. Post a listing to add the first block.
               </p>
             </div>
@@ -230,37 +232,40 @@ export default function TrustScorePage() {
           {[...blocks].reverse().map((block, i) => {
             const meta = EVENT_LABELS[block.event?.type] || {
               label: block.event?.type || 'Unknown event',
-              icon: '⬛', color: 'var(--ash)',
+              icon: '⬛',
+              color: 'var(--ash)',
             };
+            const isLast = i === blocks.length - 1;
+
             return (
-              <div key={block._id || i} style={{
-                display: 'flex', gap: 12, paddingBottom: 12, marginBottom: 12,
-                borderBottom: i < blocks.length - 1 ? '1px solid var(--border)' : 'none',
-              }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                  background: `${meta.color}22`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+              <div
+                key={block._id || i}
+                className={`trust-chain-item ${!isLast ? 'chain-item-border' : ''}`}
+              >
+                <div
+                  className="chain-item-icon"
+                  style={{
+                    background: `${meta.color}22`,
+                  }}
+                >
                   {meta.icon}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--coal)', marginBottom: 2 }}>
-                    {meta.label}
-                  </p>
-                  <p style={{ fontSize: 10, color: 'var(--ash)', fontFamily: 'monospace',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    #{block.hash?.slice(0, 24)}...
-                  </p>
+                <div className="chain-item-content">
+                  <p className="chain-item-label">{meta.label}</p>
+                  <p className="chain-item-hash">#{block.hash?.slice(0, 24)}...</p>
                 </div>
-                <p style={{ fontSize: 11, color: 'var(--ash)', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                <p className="chain-item-date">
                   {new Date(block.timestamp).toLocaleDateString('en-ZM', {
-                    day: 'numeric', month: 'short' })}
+                    day: 'numeric',
+                    month: 'short',
+                  })}
                 </p>
               </div>
             );
           })}
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--ash)', marginTop: '1.5rem' }}>
+        <p className="trust-footer">
           Secured by SHA-256 hash chain · ZamMarket 2026
         </p>
       </div>

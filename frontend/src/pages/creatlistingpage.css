@@ -1,0 +1,191 @@
+/* CreateListingPage.css */
+
+/* CSS Variables (if not already defined globally) */
+:root {
+    --coal: #1a1a1a;
+    --cream: #f9f7f2;
+    --ember: #e67e22;
+    --ember-dark: #b8651a;
+    --green: #27ae60;
+    --green-light: #e8f8ef;
+    --ash: #7f8c8d;
+    --border: #e0dcd0;
+  }
+  
+  /* Container */
+  .create-listing-container {
+    min-height: 100vh;
+    background: var(--cream);
+  }
+  
+  /* Navigation */
+  .create-listing-nav {
+    background: var(--coal);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .nav-back-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.15s ease;
+  }
+  
+  .nav-back-btn:hover {
+    opacity: 0.7;
+  }
+  
+  .nav-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: white;
+    font-size: 18px;
+    flex: 1;
+  }
+  
+  /* Voice Toggle Button */
+  .voice-toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+  }
+  
+  .voice-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .voice-toggle-active {
+    background: var(--ember);
+    border-color: var(--ember);
+  }
+  
+  .voice-toggle-active:hover {
+    background: var(--ember-dark);
+  }
+  
+  /* Content Area */
+  .create-listing-content {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+  
+  /* Card Base */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  
+  /* Voice Input Panel */
+  .voice-input-panel {
+    margin-bottom: 16px;
+    border: 2px solid var(--ember);
+  }
+  
+  /* Voice Result Banner */
+  .voice-result-banner {
+    background: var(--green-light);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: slideDown 0.3s ease;
+  }
+  
+  .voice-result-text {
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .voice-result-dismiss {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--green);
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.15s ease;
+  }
+  
+  .voice-result-dismiss:hover {
+    opacity: 1;
+  }
+  
+  /* Listing Form Card */
+  .listing-form-card {
+    /* Additional styles if needed */
+  }
+  
+  .form-title {
+    margin: 0 0 0.25rem 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--coal);
+  }
+  
+  .form-subtitle {
+    color: var(--ash);
+    font-size: 13px;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.4;
+  }
+  
+  /* Animations */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 520px) {
+    .create-listing-nav {
+      padding: 0.75rem 1rem;
+    }
+    
+    .create-listing-content {
+      padding: 1rem;
+    }
+    
+    .nav-title {
+      font-size: 16px;
+    }
+    
+    .voice-toggle-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    
+    .form-title {
+      font-size: 18px;
+    }
+  }
