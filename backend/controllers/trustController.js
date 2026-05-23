@@ -1,6 +1,7 @@
 const TrustChain = require('../models/TrustChain');
 const User       = require('../models/User');
 const Listing    = require('../models/Listing');
+const Conversation = require('../models/Conversation');
 const { createBlock, verifyChain, calculateScore } = require('../utils/blockchain');
 
 // ── Internal: add event to a seller's chain ───────────────
@@ -85,12 +86,49 @@ const getTrustChain = async (req, res, next) => {
   }
 };
 
+// ── GET /api/trust/check-conversation/:sellerId ────────────
+// Check if current user (buyer) has an active conversation with seller
+const checkConversationWithSeller = async (req, res, next) => {
+  try {
+    const { sellerId } = req.params;
+    const buyerId = req.user._id;
+
+    if (!sellerId || sellerId === 'undefined') {
+      return res.status(400).json({ status: 'error', message: 'Invalid seller ID' });
+    }
+
+    // Prevent self-check
+    if (buyerId.toString() === sellerId) {
+      return res.status(400).json({ status: 'error', message: 'Cannot check conversation with yourself' });
+    }
+
+    // Find any conversation where current user is buyer and seller is the target
+    const conversation = await Conversation.findOne({
+      buyer: buyerId,
+      seller: sellerId,
+    });
+
+    const hasConversation = !!conversation;
+
+    res.json({
+      status: 'success',
+      hasConversation,
+      message: hasConversation 
+        ? 'You can rate this seller' 
+        : 'You must complete a conversation to rate this seller',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ── POST /api/trust/rate ──────────────────────────────────
 const rateSeller = async (req, res, next) => {
   try {
     const { sellerId, rating, conversationId } = req.body;
+    const buyerId = req.user._id;
 
-    console.log('rateSeller called — sellerId:', sellerId, 'rating:', rating);
+    console.log('rateSeller called — sellerId:', sellerId, 'rating:', rating, 'buyerId:', buyerId);
 
     if (!sellerId || sellerId === 'undefined') {
       return res.status(400).json({ status: 'error', message: 'sellerId is required' });
@@ -100,14 +138,47 @@ const rateSeller = async (req, res, next) => {
     }
 
     // Prevent rating yourself
-    if (req.user._id.toString() === sellerId) {
+    if (buyerId.toString() === sellerId) {
       return res.status(400).json({ status: 'error', message: 'You cannot rate yourself' });
+    }
+
+    // ── NEW: Check if buyer has a conversation with this seller ──
+    const conversation = await Conversation.findOne({
+      buyer: buyerId,
+      seller: sellerId,
+    });
+
+    if (!conversation) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'You must have an active conversation with this seller to rate them',
+      });
+    }
+
+    // ── NEW: Check if already rated via this conversation ──
+    // (prevent duplicate ratings from same conversation)
+    const existingRating = await TrustChain.findOne({
+      seller: sellerId,
+      'event.type': /^BUYER_RATING/,
+      'event.data.buyerId': buyerId,
+      'event.data.conversationId': conversation._id,
+    });
+
+    if (existingRating) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'You have already rated this seller for this conversation',
+      });
     }
 
     const eventType = `BUYER_RATING_${rating}`;
     const result = await addTrustEvent(sellerId, eventType, {
-      rating, buyerId: req.user._id, conversationId,
+      rating, buyerId, conversationId: conversation._id,
     });
+
+    if (!result.success) {
+      return res.status(500).json({ status: 'error', message: 'Failed to record rating' });
+    }
 
     // Update seller's average rating
     const seller = await User.findById(sellerId);
@@ -137,4 +208,4 @@ const verifySellerChain = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { addTrustEvent, getTrustChain, rateSeller, verifySellerChain };
+module.exports = { addTrustEvent, getTrustChain, rateSeller, verifySellerChain, checkConversationWithSeller };
