@@ -13,22 +13,31 @@ const EVENT_LABELS = {
   ADMIN_VERIFIED:    { label: 'Admin verified',          icon: '',  color: '#3B6D11' },
 };
 
+// Safely compare two IDs regardless of format (string, ObjectId, etc)
+const sameId = (id1, id2) => {
+  if (!id1 || !id2) return false;
+  return String(id1).trim() === String(id2).trim();
+};
+
 export default function TrustScorePage() {
   const { sellerId } = useParams();
   const navigate     = useNavigate();
   const { user }     = useSelector((s) => s.auth);
 
-  // Fix: user object may use 'id' or '_id' depending on source
+  // Safely extract user ID (handle both _id and id formats)
   const myId     = user?._id || user?.id;
   // Use URL param if present, otherwise fall back to logged-in user
   const targetId = sellerId && sellerId !== 'undefined' ? sellerId : myId;
 
-  const [data, setData]       = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState('');
-  const [rating, setRating]   = useState(0);
-  const [rated, setRated]     = useState(false);
+  const [data, setData]               = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState('');
+  const [rating, setRating]           = useState(0);
+  const [rated, setRated]             = useState(false);
+  const [hasConversation, setHasConversation]     = useState(false);
+  const [checkingConversation, setCheckingConversation] = useState(false);
 
+  // Fetch trust chain data
   useEffect(() => {
     if (!targetId || targetId === 'undefined') {
       setError('Could not identify seller. Please try again.');
@@ -38,12 +47,35 @@ export default function TrustScorePage() {
     setLoading(true);
     setError('');
     api.get(`/trust/${targetId}`)
-      .then(({ data: d }) => { setData(d); setLoading(false); })
+      .then(({ data: d }) => { 
+        setData(d); 
+        setLoading(false); 
+      })
       .catch((err) => {
         setError(err.response?.data?.message || 'Could not load trust data');
         setLoading(false);
       });
   }, [targetId]);
+
+  // Check if current user has a conversation with this seller
+  useEffect(() => {
+    if (!user || !targetId || sameId(myId, targetId)) {
+      setHasConversation(false);
+      return;
+    }
+
+    setCheckingConversation(true);
+    api.get(`/trust/check-conversation/${targetId}`)
+      .then(({ data: d }) => {
+        setHasConversation(d.hasConversation);
+        setCheckingConversation(false);
+      })
+      .catch((err) => {
+        console.error('Error checking conversation:', err);
+        setHasConversation(false);
+        setCheckingConversation(false);
+      });
+  }, [myId, targetId, user]);
 
   const handleRate = async (stars) => {
     if (!targetId || targetId === 'undefined') return;
@@ -55,6 +87,7 @@ export default function TrustScorePage() {
       setData(fresh);
     } catch (err) {
       setError(err.response?.data?.message || 'Rating failed');
+      setRating(0); // Reset rating on error
     }
   };
 
@@ -69,8 +102,10 @@ export default function TrustScorePage() {
   const isValid = data?.chain?.isValid;
   const blocks  = data?.chain?.blocks || [];
   const seller  = data?.seller;
-  // Fix: compare both _id and id
-  const isSelf  = myId && (myId === targetId || myId === seller?.id);
+
+  // FIXED: Properly compare IDs using sameId helper
+  // isSelf is true only if viewing YOUR OWN profile
+  const isSelf  = user && sameId(myId, targetId);
 
   const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--ember)' : '#E24B4A';
   const scoreLabel = score >= 70 ? 'Trusted Seller'
@@ -182,25 +217,49 @@ export default function TrustScorePage() {
           </div>
         )}
 
-        {/* Rate seller — buyers only, not viewing own profile */}
-        {!isSelf && user && !rated && (
-          <div className="card" style={{ marginBottom: 14 }}>
-            <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Rate this seller</p>
-            <p style={{ fontSize: 12, color: 'var(--ash)', marginBottom: 12 }}>
-              Your rating is recorded on the blockchain and cannot be changed.
-            </p>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} onClick={() => handleRate(star)}
-                  style={{
-                    width: 46, height: 46, borderRadius: '50%', border: 'none',
-                    background: rating >= star ? '#BA7517' : 'var(--border)',
-                    fontSize: 20, cursor: 'pointer', transition: 'all 0.15s',
-                    transform: rating >= star ? 'scale(1.1)' : 'scale(1)',
-                  }}>⭐</button>
-              ))}
-            </div>
-          </div>
+        {/* Rate seller section */}
+        {!isSelf && user && (
+          <>
+            {/* Show conversation requirement message if no conversation */}
+            {!hasConversation && !checkingConversation && (
+              <div style={{ background: '#FEF3E2', border: '1px solid #BA7517', borderRadius: 10,
+                padding: '12px 14px', marginBottom: 14, textAlign: 'center' }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: '#BA7517', marginBottom: 8 }}>
+                  💬 Start a conversation to rate this seller
+                </p>
+                <p style={{ fontSize: 12, color: '#996D0A', marginBottom: 10 }}>
+                  Messages help build trust. Chat about the listing first.
+                </p>
+                <button onClick={() => navigate('/browse')}
+                  style={{ background: '#BA7517', color: 'white', border: 'none',
+                    padding: '8px 16px', borderRadius: 8, cursor: 'pointer',
+                    fontSize: 12, fontWeight: 500 }}>
+                  Browse Listings
+                </button>
+              </div>
+            )}
+
+            {/* Show rating stars only if conversation exists and not yet rated */}
+            {hasConversation && !rated && (
+              <div className="card" style={{ marginBottom: 14 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Rate this seller</p>
+                <p style={{ fontSize: 12, color: 'var(--ash)', marginBottom: 12 }}>
+                  Your rating is recorded on the blockchain and cannot be changed.
+                </p>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button key={star} onClick={() => handleRate(star)}
+                      style={{
+                        width: 46, height: 46, borderRadius: '50%', border: 'none',
+                        background: rating >= star ? '#BA7517' : 'var(--border)',
+                        fontSize: 20, cursor: 'pointer', transition: 'all 0.15s',
+                        transform: rating >= star ? 'scale(1.1)' : 'scale(1)',
+                      }}>⭐</button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {rated && (
