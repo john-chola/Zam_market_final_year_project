@@ -1,13 +1,13 @@
-const TrustChain = require('../models/TrustChain');
-const User       = require('../models/User');
-const Listing    = require('../models/Listing');
-const Conversation = require('../models/Conversation');
+const TrustChain    = require('../models/TrustChain');
+const User          = require('../models/User');
+const Listing       = require('../models/Listing');
+const Conversation  = require('../models/Conversation');
 const { createBlock, verifyChain, calculateScore } = require('../utils/blockchain');
 
 // ── Internal: add event to a seller's chain ───────────────
 const addTrustEvent = async (sellerId, eventType, eventData = {}) => {
   try {
-    const lastBlock  = await TrustChain.findOne({ seller: sellerId }).sort({ blockIndex: -1 });
+    const lastBlock    = await TrustChain.findOne({ seller: sellerId }).sort({ blockIndex: -1 });
     const previousHash = lastBlock ? lastBlock.hash : '0'.repeat(64);
     const blockIndex   = lastBlock ? lastBlock.blockIndex + 1 : 0;
 
@@ -46,40 +46,90 @@ const getTrustChain = async (req, res, next) => {
     }
 
     const seller = await User.findById(sellerId)
-      .select('name trustScore sellerProfile neighbourhood');
-    if (!seller) return res.status(404).json({ status: 'error', message: 'Seller not found' });
+      .select('name trustScore sellerProfile neighbourhood role');
+    if (!seller) {
+      return res.status(404).json({ status: 'error', message: 'Seller not found' });
+    }
+
+    if (seller.role === 'buyer') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Trust scores are only available for sellers',
+      });
+    }
 
     const blocks  = await TrustChain.find({ seller: sellerId }).sort({ blockIndex: 1 });
     const isValid = verifyChain(blocks);
 
-    // Auto-backfill: if seller has listings but no trust events, create them now
-    if (blocks.length === 0) {
+    // Auto-backfill existing listings for sellers who registered before Sprint 3
+    if (blocks.length === 0 && seller.role === 'seller') {
       const listings = await Listing.find({ seller: sellerId });
       for (const listing of listings) {
         await addTrustEvent(sellerId, 'LISTING_CREATED', {
-          listingId: listing._id, title: listing.title,
+          listingId: listing._id,
+          title: listing.title,
         });
       }
-      // Reload after backfill
       if (listings.length > 0) {
         const freshBlocks = await TrustChain.find({ seller: sellerId }).sort({ blockIndex: 1 });
-        const freshSeller = await User.findById(sellerId).select('name trustScore sellerProfile neighbourhood');
+        const freshSeller = await User.findById(sellerId)
+          .select('name trustScore sellerProfile neighbourhood role');
         return res.json({
           status: 'success',
-          seller: { id: freshSeller._id, name: freshSeller.name,
+          seller: {
+            id: freshSeller._id, name: freshSeller.name,
             neighbourhood: freshSeller.neighbourhood,
-            trustScore: freshSeller.trustScore, isVerified: freshSeller.sellerProfile?.isVerified },
-          chain: { blocks: freshBlocks, length: freshBlocks.length,
-            isValid: verifyChain(freshBlocks), score: freshSeller.trustScore?.score || 50 },
+            trustScore: freshSeller.trustScore,
+            isVerified: freshSeller.sellerProfile?.isVerified,
+            role: freshSeller.role,
+          },
+          chain: {
+            blocks: freshBlocks, length: freshBlocks.length,
+            isValid: verifyChain(freshBlocks),
+            score: freshSeller.trustScore?.score || 50,
+          },
+          canRate: false,
         });
+      }
+    }
+
+    // Check if requesting user has had a conversation with this seller
+    // Used by frontend to show/hide the rating widget
+    let canRate = false;
+    if (req.headers.authorization) {
+      try {
+        const jwt     = require('jsonwebtoken');
+        const token   = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const buyerId = decoded.id;
+
+        // Can rate if:
+        // 1. Not rating yourself
+        // 2. You are a buyer (or the seller is a seller)
+        // 3. A conversation exists between you and this seller
+        if (buyerId !== sellerId) {
+          const conversation = await Conversation.findOne({
+            buyer: buyerId,
+            seller: sellerId,
+          });
+          canRate = !!conversation;
+        }
+      } catch {
+        canRate = false;
       }
     }
 
     res.json({
       status: 'success',
-      seller: { id: seller._id, name: seller.name, neighbourhood: seller.neighbourhood,
-        trustScore: seller.trustScore, isVerified: seller.sellerProfile?.isVerified },
+      seller: {
+        id: seller._id, name: seller.name,
+        neighbourhood: seller.neighbourhood,
+        trustScore: seller.trustScore,
+        isVerified: seller.sellerProfile?.isVerified,
+        role: seller.role,
+      },
       chain: { blocks, length: blocks.length, isValid, score: seller.trustScore?.score || 50 },
+      canRate, // ← tells frontend whether to show rating widget
     });
   } catch (err) {
     next(err);
@@ -87,7 +137,7 @@ const getTrustChain = async (req, res, next) => {
 };
 
 // ── GET /api/trust/check-conversation/:sellerId ────────────
-// Check if current user (buyer) has an active conversation with seller
+// Legacy endpoint for explicit conversation checking (if needed)
 const checkConversationWithSeller = async (req, res, next) => {
   try {
     const { sellerId } = req.params;
@@ -97,12 +147,10 @@ const checkConversationWithSeller = async (req, res, next) => {
       return res.status(400).json({ status: 'error', message: 'Invalid seller ID' });
     }
 
-    // Prevent self-check
-    if (buyerId.toString() === sellerId) {
+    if (buyerId.toString() === sellerId.toString()) {
       return res.status(400).json({ status: 'error', message: 'Cannot check conversation with yourself' });
     }
 
-    // Find any conversation where current user is buyer and seller is the target
     const conversation = await Conversation.findOne({
       buyer: buyerId,
       seller: sellerId,
@@ -122,63 +170,58 @@ const checkConversationWithSeller = async (req, res, next) => {
   }
 };
 
-// ── POST /api/trust/rate ──────────────────────────────────
+// ── POST /api/trust/rate ──────────���───────────────────────
 const rateSeller = async (req, res, next) => {
   try {
     const { sellerId, rating, conversationId } = req.body;
-    const buyerId = req.user._id;
 
-    console.log('rateSeller called — sellerId:', sellerId, 'rating:', rating, 'buyerId:', buyerId);
+    console.log('rateSeller — sellerId:', sellerId, 'rating:', rating, 'buyer:', req.user._id);
 
     if (!sellerId || sellerId === 'undefined') {
       return res.status(400).json({ status: 'error', message: 'sellerId is required' });
     }
     if (!rating || rating < 1 || rating > 5) {
-      return res.status(400).json({ status: 'error', message: 'Rating must be 1–5' });
+      return res.status(400).json({ status: 'error', message: 'Rating must be between 1 and 5' });
     }
 
-    // Prevent rating yourself
-    if (buyerId.toString() === sellerId) {
+    // Prevent self-rating
+    if (req.user._id.toString() === sellerId.toString()) {
       return res.status(400).json({ status: 'error', message: 'You cannot rate yourself' });
     }
 
-    // ── NEW: Check if buyer has a conversation with this seller ──
+    // VALIDATION: buyer must have had a conversation with this seller
     const conversation = await Conversation.findOne({
-      buyer: buyerId,
+      buyer: req.user._id,
       seller: sellerId,
     });
 
     if (!conversation) {
       return res.status(403).json({
         status: 'error',
-        message: 'You must have an active conversation with this seller to rate them',
+        message: 'You can only rate sellers you have had a conversation with',
       });
     }
 
-    // ── NEW: Check if already rated via this conversation ──
-    // (prevent duplicate ratings from same conversation)
-    const existingRating = await TrustChain.findOne({
+    // Prevent duplicate ratings per conversation
+    const alreadyRated = await TrustChain.findOne({
       seller: sellerId,
-      'event.type': /^BUYER_RATING/,
-      'event.data.buyerId': buyerId,
-      'event.data.conversationId': conversation._id,
+      'event.data.buyerId': req.user._id.toString(),
+      'event.type': { $regex: /^BUYER_RATING/ },
     });
 
-    if (existingRating) {
-      return res.status(400).json({
+    if (alreadyRated) {
+      return res.status(409).json({
         status: 'error',
-        message: 'You have already rated this seller for this conversation',
+        message: 'You have already rated this seller',
       });
     }
 
     const eventType = `BUYER_RATING_${rating}`;
-    const result = await addTrustEvent(sellerId, eventType, {
-      rating, buyerId, conversationId: conversation._id,
+    const result    = await addTrustEvent(sellerId, eventType, {
+      rating,
+      buyerId:        req.user._id.toString(),
+      conversationId: conversation._id.toString(),
     });
-
-    if (!result.success) {
-      return res.status(500).json({ status: 'error', message: 'Failed to record rating' });
-    }
 
     // Update seller's average rating
     const seller = await User.findById(sellerId);
@@ -192,7 +235,7 @@ const rateSeller = async (req, res, next) => {
       });
     }
 
-    res.json({ status: 'success', newScore: result.score });
+    res.json({ status: 'success', newScore: result.score, message: 'Rating recorded on blockchain' });
   } catch (err) {
     next(err);
   }
@@ -205,7 +248,9 @@ const verifySellerChain = async (req, res, next) => {
     const blocks  = await TrustChain.find({ seller: sellerId }).sort({ blockIndex: 1 });
     const isValid = verifyChain(blocks);
     res.json({ status: 'success', isValid, blockCount: blocks.length });
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 };
 
 module.exports = { addTrustEvent, getTrustChain, rateSeller, verifySellerChain, checkConversationWithSeller };

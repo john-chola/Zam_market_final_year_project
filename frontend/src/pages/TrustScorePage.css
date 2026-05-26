@@ -1,11 +1,9 @@
 /* TrustScorePage.css */
 
-/* CSS Variables (if not already defined globally) */
 :root {
   --coal: #1a1a1a;
   --cream: #f9f7f2;
   --ember: #e67e22;
-  --ember-dark: #b8651a;
   --green: #27ae60;
   --green-light: #e8f8ef;
   --ash: #7f8c8d;
@@ -13,10 +11,10 @@
   --white: #ffffff;
   --red-light: #fcebeb;
   --red-dark: #a32d2d;
-  --trust-new: #e24b4a;
+  --trust-new: #E24B4A;
 }
 
-/* Loading State */
+/* Loading */
 .trust-loading {
   min-height: 100vh;
   display: flex;
@@ -24,7 +22,6 @@
   justify-content: center;
   background: var(--cream);
 }
-
 .trust-loading p {
   color: var(--ash);
   font-size: 15px;
@@ -44,7 +41,6 @@
   align-items: center;
   gap: 12px;
 }
-
 .trust-back-btn {
   background: transparent;
   border: none;
@@ -53,37 +49,38 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s;
 }
-
-.trust-back-btn:hover {
-  opacity: 0.7;
-}
-
+.trust-back-btn:hover { opacity: 0.7; }
 .trust-nav-title {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   color: white;
   font-size: 18px;
 }
+.trust-nav-self-label {
+  margin-left: auto;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
 
-/* Content Area */
+/* Content */
 .trust-content {
   max-width: 520px;
   margin: 0 auto;
   padding: 1.5rem;
 }
 
-/* Card Base */
+/* Card base */
 .card {
-  background: white;
+  background: var(--white);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 14px;
 }
 
-/* Error Message */
+/* Error */
 .error-msg {
   background: #fef2f2;
   border: 1px solid #fca5a5;
@@ -94,12 +91,11 @@
   font-size: 13px;
 }
 
-/* Score Card */
+/* Score card */
 .trust-score-card {
   text-align: center;
   padding: 2rem 1.5rem;
 }
-
 .trust-score-value {
   font-family: 'Syne', sans-serif;
   font-size: 72px;
@@ -107,44 +103,25 @@
   line-height: 1;
   margin-bottom: 4px;
 }
-
-.trust-score-value.trusted {
-  color: var(--green);
-}
-
-.trust-score-value.building {
-  color: var(--ember);
-}
-
-.trust-score-value.new {
-  color: var(--trust-new);
-}
+.trust-score-value.trusted  { color: var(--green); }
+.trust-score-value.building { color: var(--ember); }
+.trust-score-value.new      { color: var(--trust-new); }
 
 .trust-score-out-of {
   font-size: 13px;
   color: var(--ash);
-  margin: 0 0 4px 0;
+  margin: 0 0 4px;
 }
-
 .trust-score-label {
   font-size: 14px;
   font-weight: 500;
-  margin: 0 0 16px 0;
+  margin: 0 0 16px;
 }
+.trust-score-label.trusted  { color: var(--green); }
+.trust-score-label.building { color: var(--ember); }
+.trust-score-label.new      { color: var(--trust-new); }
 
-.trust-score-label.trusted {
-  color: var(--green);
-}
-
-.trust-score-label.building {
-  color: var(--ember);
-}
-
-.trust-score-label.new {
-  color: var(--trust-new);
-}
-
-/* Progress Bar */
+/* Progress bar */
 .trust-progress-bar {
   height: 10px;
   background: var(--border);
@@ -152,53 +129,36 @@
   overflow: hidden;
   margin-bottom: 16px;
 }
-
 .trust-progress-fill {
   height: 100%;
   border-radius: 5px;
   transition: width 1s ease;
 }
+.trust-progress-fill.trusted  { background: var(--green); }
+.trust-progress-fill.building { background: var(--ember); }
+.trust-progress-fill.new      { background: var(--trust-new); }
 
-.trust-progress-fill.trusted {
-  background: var(--green);
-}
-
-.trust-progress-fill.building {
-  background: var(--ember);
-}
-
-.trust-progress-fill.new {
-  background: var(--trust-new);
-}
-
-/* Score Breakdown */
-.trust-breakdown {
+/* Stats grid */
+.trust-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-bottom: 16px;
 }
-
-.breakdown-item {
+.trust-stat-item {
   background: var(--cream);
   border-radius: 8px;
   padding: 8px;
 }
-
-.breakdown-icon {
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.breakdown-value {
+.trust-stat-icon  { font-size: 16px; }
+.trust-stat-value {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 18px;
   color: var(--coal);
-  margin-bottom: 2px;
+  margin: 4px 0 2px;
 }
-
-.breakdown-label {
+.trust-stat-label {
   font-size: 11px;
   color: var(--ash);
 }
@@ -210,41 +170,33 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-
-.badge {
+.trust-badge {
   font-size: 12px;
   font-weight: 500;
   padding: 4px 12px;
   border-radius: 20px;
 }
-
 .badge-valid {
   background: var(--green-light);
   color: var(--green);
 }
-
 .badge-invalid {
   background: var(--red-light);
   color: var(--red-dark);
 }
-
 .badge-verified {
   background: var(--green-light);
   color: var(--green);
 }
 
-/* Trust Guide Card */
-.trust-guide-card {
-  margin-bottom: 14px;
-}
-
+/* Guide card */
+.trust-guide-card { }
 .trust-guide-title {
   font-size: 13px;
   font-weight: 500;
-  margin: 0 0 10px 0;
+  margin: 0 0 10px;
   color: var(--coal);
 }
-
 .trust-guide-item {
   display: flex;
   justify-content: space-between;
@@ -252,29 +204,21 @@
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
 }
-
-.trust-guide-item:last-child {
-  border-bottom: none;
-}
-
-.trust-guide-action {
-  font-size: 13px;
-  color: var(--coal);
-}
-
+.trust-guide-item:last-child { border-bottom: none; }
+.trust-guide-action { font-size: 13px; }
 .trust-guide-points {
   font-size: 12px;
   color: var(--green);
   font-weight: 500;
 }
 
-/* Seller Info Card */
+/* Seller card */
+.trust-seller-card { }
 .trust-seller-info {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
 .trust-seller-avatar {
   width: 44px;
   height: 44px;
@@ -289,40 +233,38 @@
   font-size: 16px;
   flex-shrink: 0;
 }
-
+.trust-seller-details { }
 .trust-seller-name {
   font-weight: 500;
   margin: 0;
-  color: var(--coal);
   font-size: 14px;
+  color: var(--coal);
 }
-
 .trust-seller-meta {
   font-size: 12px;
   color: var(--ash);
-  margin: 2px 0 0 0;
+  margin: 2px 0 0;
 }
 
-/* Rating Card */
+/* Rating card */
+.trust-rating-card { }
 .trust-rating-title {
   font-size: 13px;
   font-weight: 500;
-  margin: 0 0 4px 0;
+  margin: 0 0 4px;
   color: var(--coal);
 }
-
 .trust-rating-description {
   font-size: 12px;
   color: var(--ash);
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
 }
-
-.trust-stars {
+.trust-rate-error { margin-bottom: 10px; }
+.trust-stars-container {
   display: flex;
   gap: 8px;
   justify-content: center;
 }
-
 .trust-star-btn {
   width: 46px;
   height: 46px;
@@ -330,32 +272,37 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .star-active {
-  background: #ba7517;
+  background: #BA7517;
   transform: scale(1.1);
 }
-
-.star-active:hover {
-  transform: scale(1.15);
-}
-
+.star-active:hover { transform: scale(1.15); }
 .star-inactive {
   background: var(--border);
   transform: scale(1);
 }
-
 .star-inactive:hover {
   background: #d4cfc0;
   transform: scale(1.05);
 }
 
-/* Rated Banner */
+/* Rating notice */
+.trust-rating-notice {
+  background: #F0EFE8;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--ash);
+}
+
+/* Rated banner */
 .trust-rated-banner {
   background: var(--green-light);
   border: 1px solid var(--green);
@@ -369,46 +316,29 @@
   animation: fadeIn 0.5s ease;
 }
 
-/* Blockchain Chain Card */
-.trust-chain-card {
-  /* Additional styles if needed */
-}
-
-.trust-chain-title {
+/* Blockchain history */
+.trust-chain-card { }
+.trust-chain-header {
   font-size: 11px;
   color: var(--ash);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
 }
-
 .trust-chain-empty {
   text-align: center;
   padding: 1.5rem 0;
 }
+.trust-chain-empty-icon { font-size: 32px; margin-bottom: 8px; }
+.trust-chain-empty-text { color: var(--ash); font-size: 13px; margin: 0; }
 
-.trust-chain-empty-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
-
-.trust-chain-empty-text {
-  color: var(--ash);
-  font-size: 13px;
-  margin: 0;
-}
-
-/* Chain Item */
 .trust-chain-item {
   display: flex;
   gap: 12px;
   padding-bottom: 12px;
   margin-bottom: 12px;
 }
-
-.chain-item-border {
-  border-bottom: 1px solid var(--border);
-}
+.chain-item-border { border-bottom: 1px solid var(--border); }
 
 .chain-item-icon {
   width: 32px;
@@ -420,19 +350,13 @@
   justify-content: center;
   font-size: 14px;
 }
-
-.chain-item-content {
-  flex: 1;
-  min-width: 0;
-}
-
+.chain-item-content { flex: 1; min-width: 0; }
 .chain-item-label {
   font-size: 13px;
   font-weight: 500;
   color: var(--coal);
-  margin: 0 0 2px 0;
+  margin: 0 0 2px;
 }
-
 .chain-item-hash {
   font-size: 10px;
   color: var(--ash);
@@ -442,7 +366,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .chain-item-date {
   font-size: 11px;
   color: var(--ash);
@@ -456,64 +379,21 @@
   text-align: center;
   font-size: 11px;
   color: var(--ash);
-  margin: 1.5rem 0 0 0;
+  margin-top: 1.5rem;
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 520px) {
-  .trust-nav {
-    padding: 0.75rem 1rem;
-  }
-
-  .trust-content {
-    padding: 1rem;
-  }
-
-  .trust-score-value {
-    font-size: 56px;
-  }
-
-  .trust-score-card {
-    padding: 1.5rem 1rem;
-  }
-
-  .trust-breakdown {
-    gap: 6px;
-  }
-
-  .breakdown-item {
-    padding: 6px;
-  }
-
-  .breakdown-value {
-    font-size: 16px;
-  }
-
-  .trust-star-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-  }
-
-  .trust-stars {
-    gap: 6px;
-  }
-
-  .chain-item-icon {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
+  .trust-nav { padding: 0.75rem 1rem; }
+  .trust-content { padding: 1rem; }
+  .trust-score-value { font-size: 56px; }
+  .trust-score-card { padding: 1.5rem 1rem; }
+  .trust-star-btn { width: 40px; height: 40px; font-size: 18px; }
+  .trust-stars-container { gap: 6px; }
 }

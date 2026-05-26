@@ -1,573 +1,653 @@
-/* DashboardPage.css */
-
-/* CSS Variables (if not already defined globally) */
+/* ===== CSS Custom Properties ===== */
 :root {
-    --coal: #1a1a1a;
-    --cream: #f9f7f2;
-    --ember: #e67e22;
-    --ember-light: #fef0e0;
-    --ember-dark: #b8651a;
-    --green: #27ae60;
-    --green-light: #e8f8ef;
-    --ash: #7f8c8d;
-    --border: #e0dcd0;
-  }
-  
-  /* Base Dashboard Styles */
-  .dashboard-container {
-    min-height: 100vh;
-    background: var(--cream);
-  }
-  
+  --coal: #1a1a1a;
+  --ash: #6b7280;
+  --ember: #ef4444;
+  --ember-light: #fef2f2;
+  --ember-dark: #dc2626;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --cream: #fafaf9;
+  --snow: #ffffff;
+  --smoke: #f3f4f6;
+  --border: #e5e7eb;
+  --focus-ring: rgba(239, 68, 68, 0.3);
+  --radius: 8px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --transition: 0.2s ease;
+}
+
+/* ===== Dashboard Container ===== */
+.dashboard {
+  min-height: 100vh;
+  background: var(--cream);
+}
+
+/* ===== Navigation Bar ===== */
+.dashboard-nav {
+  background: var(--coal);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  color: white;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  cursor: default;
+  user-select: none;
+}
+
+.brand-dot {
+  color: var(--ember);
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ===== Dashboard Content ===== */
+.dashboard-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* ===== Offline Banner ===== */
+.offline-banner {
+  background: #BA7517;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+.offline-banner-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.offline-banner-title {
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.offline-banner-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  margin: 0;
+  line-height: 1.3;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== PWA Install Banner ===== */
+.pwa-install-banner {
+  background: var(--coal);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideDown 0.3s ease;
+}
+
+.pwa-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--ember);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.pwa-text {
+  flex: 1;
+}
+
+.pwa-title {
+  color: white;
+  font-weight: 500;
+  font-size: 13px;
+  margin: 0;
+}
+
+.pwa-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  margin: 2px 0 0;
+}
+
+.pwa-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-pwa-later {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.btn-pwa-later:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn-pwa-install {
+  background: var(--ember);
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.btn-pwa-install:hover {
+  background: var(--ember-dark);
+}
+
+/* ===== Profile Card ===== */
+.profile-card {
+  margin-bottom: 14px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ember);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 18px;
+  margin: 0 0 3px;
+  color: var(--coal);
+  font-weight: 600;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-seller {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.badge-buyer {
+  background: var(--ember-light);
+  color: var(--ember-dark);
+}
+
+.badge-verified {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+/* ===== Profile Details Grid ===== */
+.profile-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px; /* only shown when there's trust score below for sellers */
+}
+
+/* Adjust margin when no trust score below (buyer) */
+.profile-card:not(.has-trust) .profile-details {
+  margin-bottom: 0;
+}
+
+.detail-item {
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
+.detail-label {
+  font-size: 10px;
+  color: var(--ash);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.detail-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--coal);
+}
+
+/* ===== Trust Score Bar ===== */
+.trust-score {
+  margin-top: 4px;
+}
+
+.trust-score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.trust-score-label {
+  font-size: 12px;
+  color: var(--ash);
+}
+
+.trust-score-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trust-score-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 1px 8px;
+  border-radius: 20px;
+}
+
+.trust-score-tag.high {
+  background: rgba(22, 163, 74, 0.15);
+  color: var(--green);
+}
+
+.trust-score-tag.medium {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--ember);
+}
+
+.trust-score-tag.low {
+  background: rgba(226, 75, 74, 0.15);
+  color: #E24B4A;
+}
+
+.trust-score-value {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.trust-score-value.high { color: var(--green); }
+.trust-score-value.medium { color: var(--ember); }
+.trust-score-value.low { color: #E24B4A; }
+
+.trust-score-bar {
+  height: 7px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.trust-score-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+
+.trust-score-fill.high { background: var(--green); }
+.trust-score-fill.medium { background: var(--ember); }
+.trust-score-fill.low { background: #E24B4A; }
+
+.trust-score-link {
+  font-size: 11px;
+  color: var(--ash);
+  margin-top: 5px;
+  text-align: right;
+  cursor: pointer;
+}
+
+.trust-score-link:hover {
+  color: var(--ember);
+  text-decoration: underline;
+}
+
+/* ===== Upgrade / Seller Action Banner ===== */
+.upgrade-banner {
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.upgrade-banner.buyer {
+  background: var(--coal);
+}
+
+.upgrade-banner.seller {
+  background: var(--ember);
+}
+
+.banner-text {
+  flex: 1;
+}
+
+.banner-title {
+  font-weight: 500;
+  font-size: 14px;
+  color: white;
+  margin: 0;
+}
+
+.banner-subtitle {
+  margin-top: 2px;
+  font-size: 12px;
+  margin: 2px 0 0;
+}
+
+.upgrade-banner.buyer .banner-subtitle {
+  color: var(--ash);
+}
+
+.upgrade-banner.seller .banner-subtitle {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.btn-upgrade {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+  border: none;
+  transition: all var(--transition);
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.upgrade-banner.buyer .btn-upgrade {
+  background: var(--ember);
+  color: white;
+}
+
+.upgrade-banner.buyer .btn-upgrade:hover:not(:disabled) {
+  background: var(--ember-dark);
+  transform: translateY(-1px);
+}
+
+.upgrade-banner.seller .btn-upgrade {
+  background: white;
+  color: var(--ember-dark);
+}
+
+.upgrade-banner.seller .btn-upgrade:hover {
+  background: #fef2f2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-upgrade:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== Blockchain Trust Chain Card ===== */
+.trust-chain-card {
+  margin-bottom: 14px;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.trust-chain-card:hover {
+  border-color: var(--ember);
+}
+
+.trust-chain-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.trust-chain-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--coal);
+}
+
+.trust-chain-link-text {
+  font-size: 11px;
+  color: var(--ash);
+  transition: color var(--transition);
+}
+
+.trust-chain-card:hover .trust-chain-link-text {
+  color: var(--ember);
+}
+
+.trust-chain-description {
+  font-size: 11px;
+  color: var(--ash);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* ===== Navigation Grid ===== */
+.nav-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+.nav-card-link {
+  text-decoration: none;
+  display: block;
+}
+
+.nav-card {
+  text-align: center;
+  padding: 1.25rem 1rem;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, transform var(--transition), box-shadow var(--transition);
+  border: 1px solid var(--border);
+  background: var(--snow);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--ember);
+}
+
+.nav-card-icon {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.nav-card-label {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--coal);
+}
+
+.nav-card-sub {
+  font-size: 11px;
+  color: var(--ash);
+  margin-top: 2px;
+}
+
+/* ===== Notification Badge ===== */
+.notification-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ember);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
+/* ===== Card Component ===== */
+.card {
+  background: var(--snow);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+/* ===== Footer ===== */
+.dashboard-footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ash);
+  margin-top: 2rem;
+  padding-bottom: 1rem;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 480px) {
   .dashboard-content {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 1.5rem;
+    padding: 1rem;
   }
-  
-  /* Navigation */
-  .dashboard-nav {
-    background: var(--coal);
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .dashboard-logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    color: white;
-    font-size: 20px;
-  }
-  
-  .dashboard-logo-highlight {
-    color: var(--ember);
-  }
-  
-  .dashboard-logout-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 6px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background-color 0.15s ease;
-  }
-  
-  .dashboard-logout-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  /* Card Component */
-  .dashboard-card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 14px;
-    transition: border-color 0.15s ease;
-  }
-  
-  .dashboard-card:hover {
-    border-color: var(--ember);
-  }
-  
-  /* Profile Section */
-  .profile-section {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 16px;
-  }
-  
-  .profile-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--ember);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
+
+  .nav-brand {
     font-size: 18px;
   }
-  
-  .profile-info {
-    flex: 1;
-    min-width: 0;
+
+  .profile-details {
+    grid-template-columns: 1fr;
   }
-  
-  .profile-name {
-    font-size: 18px;
-    margin: 0 0 3px 0;
-    font-weight: 600;
-    color: var(--coal);
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
   }
-  
+
   .profile-badges {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+    justify-content: center;
   }
-  
-  .badge-seller {
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 11px;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-weight: 500;
+
+  .upgrade-banner {
+    flex-direction: column;
+    text-align: center;
   }
-  
-  .badge-buyer {
-    background: var(--ember-light);
-    color: var(--ember-dark);
-    font-size: 11px;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-weight: 500;
+
+  .btn-upgrade {
+    width: 100%;
+    margin-left: 0 !important;
+    margin-top: 12px;
   }
-  
-  .badge-verified {
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 11px;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-  
-  /* Info Grid */
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  
-  .info-item {
-    background: var(--cream);
-    border-radius: 8px;
-    padding: 10px 12px;
-  }
-  
-  .info-label {
-    font-size: 10px;
-    color: var(--ash);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 2px;
-  }
-  
-  .info-value {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--coal);
-  }
-  
-  /* Trust Score Bar */
-  .trust-score-container {
-    cursor: pointer;
-  }
-  
-  .trust-score-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  
-  .trust-score-label {
-    font-size: 12px;
-    color: var(--ash);
-  }
-  
-  .trust-score-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .trust-score-badge {
-    font-size: 11px;
-    padding: 1px 8px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-  
-  .trust-score-badge.trusted {
-    background: rgba(39, 174, 96, 0.13);
-    color: var(--green);
-  }
-  
-  .trust-score-badge.building {
-    background: rgba(230, 126, 34, 0.13);
-    color: var(--ember);
-  }
-  
-  .trust-score-badge.new {
-    background: rgba(226, 75, 74, 0.13);
-    color: #e24b4a;
-  }
-  
-  .trust-score-value {
-    font-size: 13px;
-    font-weight: 700;
-  }
-  
-  .trust-score-value.trusted {
-    color: var(--green);
-  }
-  
-  .trust-score-value.building {
-    color: var(--ember);
-  }
-  
-  .trust-score-value.new {
-    color: #e24b4a;
-  }
-  
-  .trust-score-bar {
-    height: 7px;
-    background: var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  
-  .trust-score-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 1s ease;
-  }
-  
-  .trust-score-fill.trusted {
-    background: var(--green);
-  }
-  
-  .trust-score-fill.building {
-    background: var(--ember);
-  }
-  
-  .trust-score-fill.new {
-    background: #e24b4a;
-  }
-  
-  .trust-score-link {
-    font-size: 11px;
-    color: var(--ash);
-    margin: 5px 0 0 0;
-    text-align: right;
-  }
-  
-  /* Offline Banner */
-  .offline-banner {
-    background: #ba7517;
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
+
+  .nav-grid {
+    grid-template-columns: 1fr;
     gap: 8px;
   }
-  
-  .offline-banner-icon {
+
+  .nav-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .dashboard-nav {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-brand {
     font-size: 16px;
   }
-  
-  .offline-banner-title {
-    color: white;
-    font-size: 13px;
-    font-weight: 500;
-    margin: 0;
-  }
-  
-  .offline-banner-message {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 11px;
-    margin: 0;
-  }
-  
-  /* PWA Install Banner */
-  .pwa-banner {
-    background: var(--coal);
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .pwa-banner-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: var(--ember);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-  
-  .pwa-banner-content {
-    flex: 1;
-  }
-  
-  .pwa-banner-title {
-    color: white;
-    font-weight: 500;
-    font-size: 13px;
-    margin: 0;
-  }
-  
-  .pwa-banner-subtitle {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 11px;
-    margin: 2px 0 0;
-  }
-  
-  .pwa-banner-actions {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-  
-  .pwa-btn-later {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.6);
-    padding: 5px 10px;
-    border-radius: 6px;
-    cursor: pointer;
+
+  .btn-logout {
     font-size: 12px;
-    transition: all 0.15s ease;
-  }
-  
-  .pwa-btn-later:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .pwa-btn-install {
-    background: var(--ember);
-    color: white;
-    border: none;
     padding: 5px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: background-color 0.15s ease;
   }
-  
-  .pwa-btn-install:hover {
-    background: var(--ember-dark);
-  }
-  
-  /* Upgrade/Quick Action Banners */
-  .upgrade-banner {
-    background: var(--coal);
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .upgrade-banner-title {
-    color: white;
-    font-weight: 500;
-    font-size: 14px;
-    margin: 0;
-  }
-  
-  .upgrade-banner-subtitle {
-    color: var(--ash);
-    font-size: 12px;
-    margin: 2px 0 0;
-  }
-  
-  .seller-quick-action {
-    background: var(--ember);
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .seller-quick-action-title {
-    color: white;
-    font-weight: 500;
-    font-size: 14px;
-    margin: 0;
-  }
-  
-  .seller-quick-action-subtitle {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 12px;
-    margin: 2px 0 0;
-  }
-  
-  .btn-upgrade {
-    background: var(--ember);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    flex-shrink: 0;
-    margin-left: 12px;
-    transition: background-color 0.15s ease;
-  }
-  
-  .btn-upgrade:hover:not(:disabled) {
-    background: var(--ember-dark);
-  }
-  
-  .btn-upgrade:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  .btn-post {
-    background: white;
-    color: var(--ember-dark);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    flex-shrink: 0;
-    margin-left: 12px;
-    transition: transform 0.15s ease;
-  }
-  
-  .btn-post:hover {
-    transform: translateY(-1px);
-  }
-  
-  /* Trust Score Panel (Seller) */
-  .trust-panel {
-    cursor: pointer;
-  }
-  
-  .trust-panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .trust-panel-title {
-    font-size: 13px;
-    font-weight: 500;
-    margin: 0;
-    color: var(--coal);
-  }
-  
-  .trust-panel-link {
-    font-size: 11px;
-    color: var(--ash);
-  }
-  
-  .trust-panel-description {
-    font-size: 11px;
-    color: var(--ash);
-    margin: 8px 0 0 0;
-    line-height: 1.4;
-  }
-  
-  /* Navigation Grid */
-  .nav-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  
-  .nav-link {
-    text-decoration: none;
-  }
-  
-  .nav-card {
-    text-align: center;
-    padding: 1.25rem 1rem;
-    cursor: pointer;
-    position: relative;
-    transition: border-color 0.15s ease;
-  }
-  
-  .nav-card:hover {
-    border-color: var(--ember);
-  }
-  
-  .nav-card-icon {
-    font-size: 26px;
-    margin-bottom: 6px;
-  }
-  
-  .nav-card-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--ember);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .nav-card-label {
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--coal);
-    margin: 0;
-  }
-  
-  .nav-card-sub {
-    font-size: 11px;
-    color: var(--ash);
-    margin: 2px 0 0;
-  }
-  
-  /* Footer */
-  .dashboard-footer {
-    text-align: center;
-    font-size: 11px;
-    color: var(--ash);
-    margin-top: 2rem;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 480px) {
-    .dashboard-content {
-      padding: 1rem;
-    }
-    
-    .dashboard-nav {
-      padding: 0.75rem 1rem;
-    }
-    
-    .nav-grid {
-      gap: 8px;
-    }
-    
-    .nav-card {
-      padding: 1rem 0.75rem;
-    }
-  }
+}

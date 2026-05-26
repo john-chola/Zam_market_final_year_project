@@ -10,11 +10,11 @@ const KEYWORD_MAP = {
   // Nyanja charcoal terms
   'maalasha': 'charcoal', 'masaka': 'bags', 'saka': 'bag',
   // Bemba charcoal terms
-  'amalasha': 'charcoal', 'amasaka': 'bags', 'isaka': 'bag',
+  'amalaasha': 'charcoal', 'amasaka': 'bags', 'isaka': 'bag',
   // Common price words
   'kwacha': 'K', 'ngwe': '',
   // Units
-  'umufuko': 'bag', 'tini': 'tin', 'kilogiramu': 'kg',
+  'umufuko': 'bag', 'tini': 'tin', 'kilogram': 'kg',
 };
 
 const applyKeywordMap = (transcript) => {
@@ -55,7 +55,7 @@ export default function VoiceListingInput({ onResult, onClose }) {
     const recognition = new SpeechRecognition();
     recognition.continuous      = false;
     recognition.interimResults  = true;
-    recognition.lang            = 'en-ZM'; // Zambian English; falls back to en-US
+    recognition.lang            = 'en-US';
     recognition.maxAlternatives = 3;
 
     recognition.onresult = (e) => {

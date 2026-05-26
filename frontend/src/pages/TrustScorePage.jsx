@@ -5,43 +5,59 @@ import api from '../utils/api';
 import './TrustScorePage.css';
 
 const EVENT_LABELS = {
-  LISTING_CREATED: { label: 'Listing posted', icon: '📦', color: '#3B6D11' },
-  CONVERSATION_DONE: { label: 'Conversation completed', icon: '💬', color: '#185FA5' },
-  BUYER_RATING_5: { label: '5-star rating received', icon: '⭐', color: '#BA7517' },
-  BUYER_RATING_4: { label: '4-star rating received', icon: '⭐', color: '#BA7517' },
-  BUYER_RATING_3: { label: '3-star rating received', icon: '⭐', color: '#888780' },
-  BUYER_RATING_1: { label: '1-star rating received', icon: '⭐', color: '#A32D2D' },
-  ADMIN_VERIFIED: { label: 'Admin verified', icon: '✓', color: '#3B6D11' },
+  LISTING_CREATED:   { label: 'Listing posted',         icon: '📦', color: '#3B6D11' },
+  CONVERSATION_DONE: { label: 'Conversation completed',  icon: '💬', color: '#185FA5' },
+  BUYER_RATING_5:    { label: '5-star rating received',  icon: '⭐', color: '#BA7517' },
+  BUYER_RATING_4:    { label: '4-star rating received',  icon: '⭐', color: '#BA7517' },
+  BUYER_RATING_3:    { label: '3-star rating received',  icon: '⭐', color: '#888780' },
+  BUYER_RATING_2:    { label: '2-star rating received',  icon: '⚠️', color: '#E08A00' },
+  BUYER_RATING_1:    { label: '1-star rating received',  icon: '⚠️', color: '#A32D2D' },
+  ADMIN_VERIFIED:    { label: 'Admin verified',          icon: '✓',  color: '#3B6D11' },
 };
 
 export default function TrustScorePage() {
   const { sellerId } = useParams();
-  const navigate = useNavigate();
-  const { user } = useSelector((s) => s.auth);
+  const navigate     = useNavigate();
+  const { user }     = useSelector((s) => s.auth);
 
-  const myId = user?._id || user?.id;
-  const targetId = sellerId && sellerId !== 'undefined' ? sellerId : myId;
+  const getStoredUserId = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('zammarket_user'));
+      return stored?._id || stored?.id || null;
+    } catch { return null; }
+  };
 
-  const [data, setData] = useState(null);
+  const myId = user?._id || user?.id || getStoredUserId();
+  const isValidId = (id) => id && id !== 'undefined' && id !== 'null' && /^[a-f\d]{24}$/i.test(id);
+  const targetId  = isValidId(sellerId) ? sellerId : myId;
+
+  const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [rating, setRating] = useState(0);
-  const [rated, setRated] = useState(false);
+  const [error, setError]     = useState('');
+  const [rating, setRating]   = useState(0);
+  const [rated, setRated]     = useState(false);
+  const [rateError, setRateError] = useState('');
+
+  // Redirect buyers away from their own trust page
+  useEffect(() => {
+    const viewingOwnProfile = !sellerId ||
+      sellerId === 'undefined' ||
+      (myId && myId.toString() === sellerId.toString());
+    if (viewingOwnProfile && user?.role === 'buyer') {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user?.role, sellerId, myId, navigate]);
 
   useEffect(() => {
-    if (!targetId || targetId === 'undefined') {
-      setError('Could not identify seller. Please try again.');
+    if (!targetId || !isValidId(targetId)) {
+      setError('Could not identify user. Please log out and log back in.');
       setLoading(false);
       return;
     }
     setLoading(true);
     setError('');
-    api
-      .get(`/trust/${targetId}`)
-      .then(({ data: d }) => {
-        setData(d);
-        setLoading(false);
-      })
+    api.get(`/trust/${targetId}`)
+      .then(({ data: d }) => { setData(d); setLoading(false); })
       .catch((err) => {
         setError(err.response?.data?.message || 'Could not load trust data');
         setLoading(false);
@@ -49,44 +65,43 @@ export default function TrustScorePage() {
   }, [targetId]);
 
   const handleRate = async (stars) => {
-    if (!targetId || targetId === 'undefined') return;
+    if (!isValidId(targetId)) return;
     setRating(stars);
+    setRateError('');
     try {
       await api.post('/trust/rate', { sellerId: targetId, rating: stars });
       setRated(true);
       const { data: fresh } = await api.get(`/trust/${targetId}`);
       setData(fresh);
     } catch (err) {
-      setError(err.response?.data?.message || 'Rating failed');
+      setRateError(err.response?.data?.message || 'Rating failed');
+      setRating(0);
     }
   };
 
-  if (loading)
-    return (
-      <div className="trust-loading">
-        <p>Loading trust data...</p>
-      </div>
-    );
+  if (loading) return (
+    <div className="trust-loading">
+      <p>Loading trust data...</p>
+    </div>
+  );
 
-  const score = data?.chain?.score ?? 50;
-  const isValid = data?.chain?.isValid;
-  const blocks = data?.chain?.blocks || [];
-  const seller = data?.seller;
-  const isSelf = myId && (myId === targetId || myId === seller?.id);
+  const score    = data?.chain?.score ?? 50;
+  const isValid  = data?.chain?.isValid;
+  const blocks   = data?.chain?.blocks || [];
+  const seller   = data?.seller;
+  const canRate  = data?.canRate;
+
+  const isSelf = !!(myId && targetId && myId.toString() === targetId.toString());
+  const showRating = !isSelf && !!user && canRate && !rated;
 
   const getScoreCategory = (score) => {
     if (score >= 70) return 'trusted';
     if (score >= 40) return 'building';
     return 'new';
   };
-
   const scoreCategory = getScoreCategory(score);
-  const scoreLabel =
-    score >= 70
-      ? 'Trusted Seller'
-      : score >= 40
-      ? 'Building Reputation'
-      : 'New Seller';
+  const scoreLabel = score >= 70 ? 'Trusted Seller'
+    : score >= 40 ? 'Building Reputation' : 'New Seller';
 
   return (
     <div className="trust-container">
@@ -95,6 +110,9 @@ export default function TrustScorePage() {
           ←
         </button>
         <span className="trust-nav-title">Trust Score</span>
+        {isSelf && (
+          <span className="trust-nav-self-label">Your profile</span>
+        )}
       </nav>
 
       <div className="trust-content">
@@ -113,57 +131,42 @@ export default function TrustScorePage() {
             />
           </div>
 
-          {/* Score breakdown */}
-          <div className="trust-breakdown">
+          <div className="trust-stats-grid">
             {[
-              {
-                label: 'Listings',
-                value: blocks.filter((b) => b.event?.type === 'LISTING_CREATED').length,
-                icon: '📦',
-              },
-              {
-                label: 'Chats',
-                value: blocks.filter((b) => b.event?.type === 'CONVERSATION_DONE').length,
-                icon: '💬',
-              },
-              {
-                label: 'Ratings',
-                value: blocks.filter((b) => b.event?.type?.startsWith('BUYER_RATING')).length,
-                icon: '⭐',
-              },
+              { label: 'Listings', value: blocks.filter(b => b.event?.type === 'LISTING_CREATED').length, icon: '📦' },
+              { label: 'Chats',    value: blocks.filter(b => b.event?.type === 'CONVERSATION_DONE').length, icon: '💬' },
+              { label: 'Ratings',  value: blocks.filter(b => b.event?.type?.startsWith('BUYER_RATING')).length, icon: '⭐' },
             ].map(({ label, value, icon }) => (
-              <div key={label} className="breakdown-item">
-                <div className="breakdown-icon">{icon}</div>
-                <div className="breakdown-value">{value}</div>
-                <div className="breakdown-label">{label}</div>
+              <div key={label} className="trust-stat-item">
+                <div className="trust-stat-icon">{icon}</div>
+                <div className="trust-stat-value">{value}</div>
+                <div className="trust-stat-label">{label}</div>
               </div>
             ))}
           </div>
 
           <div className="trust-badges">
-            <span className={`badge ${isValid ? 'badge-valid' : 'badge-invalid'}`}>
-              {isValid ? '✓ Chain Valid' : '⚠ Chain Invalid'}
+            <span className={`trust-badge ${isValid ? 'badge-valid' : 'badge-invalid'}`}>
+              {isValid ? '🔗 Chain Valid' : '⚠️ Chain Invalid'}
             </span>
             {seller?.isVerified && (
-              <span className="badge badge-verified">✓ Verified Seller</span>
+              <span className="trust-badge badge-verified">✓ Verified Seller</span>
             )}
           </div>
         </div>
 
-        {/* How to improve score */}
-        {blocks.length === 0 && (
+        {/* How to build score (only when empty and viewing own profile) */}
+        {blocks.length === 0 && isSelf && (
           <div className="card trust-guide-card">
             <p className="trust-guide-title">How to build your trust score</p>
             {[
-              { icon: '📦', action: 'Post a listing', points: '+2 pts each' },
-              { icon: '💬', action: 'Complete a conversation', points: '+5 pts each' },
-              { icon: '⭐', action: 'Receive a 5-star rating', points: '+8 pts each' },
-              { icon: '✓', action: 'Get admin verified', points: '+15 pts once' },
+              { icon: '📦', action: 'Post a listing',             points: '+2 pts' },
+              { icon: '💬', action: 'Complete a conversation',    points: '+5 pts' },
+              { icon: '⭐', action: 'Receive a 5-star rating',    points: '+8 pts' },
+              { icon: '✓',  action: 'Get verified by admin',      points: '+15 pts' },
             ].map(({ icon, action, points }) => (
               <div key={action} className="trust-guide-item">
-                <span className="trust-guide-action">
-                  {icon} {action}
-                </span>
+                <span className="trust-guide-action">{icon} {action}</span>
                 <span className="trust-guide-points">{points}</span>
               </div>
             ))}
@@ -177,24 +180,26 @@ export default function TrustScorePage() {
               <div className="trust-seller-avatar">
                 {seller.name?.charAt(0)?.toUpperCase() || '?'}
               </div>
-              <div>
+              <div className="trust-seller-details">
                 <p className="trust-seller-name">{seller.name}</p>
                 <p className="trust-seller-meta">
-                  {(seller.neighbourhood || '').replace('_', ' ')} · {blocks.length} trust events
+                  📍 {(seller.neighbourhood || '').replace('_', ' ')}
+                  {' · '}{blocks.length} trust event{blocks.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Rate seller — buyers only, not viewing own profile */}
-        {!isSelf && user && !rated && (
+        {/* Rating widget */}
+        {showRating && (
           <div className="card trust-rating-card">
             <p className="trust-rating-title">Rate this seller</p>
             <p className="trust-rating-description">
-              Your rating is recorded on the blockchain and cannot be changed.
+              You have chatted with this seller. Your rating is permanently recorded on the blockchain.
             </p>
-            <div className="trust-stars">
+            {rateError && <div className="error-msg trust-rate-error">{rateError}</div>}
+            <div className="trust-stars-container">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -208,23 +213,32 @@ export default function TrustScorePage() {
           </div>
         )}
 
+        {/* Explanation for non-ratable users */}
+        {!isSelf && user && !canRate && !rated && (
+          <div className="trust-rating-notice">
+            💬 Message this seller and have a conversation before you can leave a rating.
+          </div>
+        )}
+
+        {/* Rating success banner */}
         {rated && (
           <div className="trust-rated-banner">
             ✓ Rating recorded on blockchain. Trust score updated.
           </div>
         )}
 
-        {/* Blockchain event chain */}
+        {/* Blockchain event history */}
         <div className="card trust-chain-card">
-          <p className="trust-chain-title">
-            Blockchain History · {blocks.length} blocks
+          <p className="trust-chain-header">
+            Blockchain History · {blocks.length} block{blocks.length !== 1 ? 's' : ''}
           </p>
 
           {blocks.length === 0 && (
             <div className="trust-chain-empty">
               <div className="trust-chain-empty-icon">🔗</div>
               <p className="trust-chain-empty-text">
-                No events yet. Post a listing to add the first block.
+                No trust events yet.
+                {isSelf ? ' Post a listing to add the first block.' : ''}
               </p>
             </div>
           )}
@@ -232,22 +246,14 @@ export default function TrustScorePage() {
           {[...blocks].reverse().map((block, i) => {
             const meta = EVENT_LABELS[block.event?.type] || {
               label: block.event?.type || 'Unknown event',
-              icon: '⬛',
-              color: 'var(--ash)',
+              icon: '⬛', color: 'var(--ash)',
             };
-            const isLast = i === blocks.length - 1;
-
             return (
               <div
                 key={block._id || i}
-                className={`trust-chain-item ${!isLast ? 'chain-item-border' : ''}`}
+                className={`trust-chain-item ${i < blocks.length - 1 ? 'chain-item-border' : ''}`}
               >
-                <div
-                  className="chain-item-icon"
-                  style={{
-                    background: `${meta.color}22`,
-                  }}
-                >
+                <div className="chain-item-icon" style={{ background: `${meta.color}22` }}>
                   {meta.icon}
                 </div>
                 <div className="chain-item-content">
@@ -256,9 +262,7 @@ export default function TrustScorePage() {
                 </div>
                 <p className="chain-item-date">
                   {new Date(block.timestamp).toLocaleDateString('en-ZM', {
-                    day: 'numeric',
-                    month: 'short',
-                  })}
+                    day: 'numeric', month: 'short' })}
                 </p>
               </div>
             );
@@ -271,4 +275,4 @@ export default function TrustScorePage() {
       </div>
     </div>
   );
-}S
+}
