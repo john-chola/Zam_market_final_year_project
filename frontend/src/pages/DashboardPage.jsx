@@ -7,36 +7,6 @@ import './DashboardPage.css';
 
 const getUserId = (user) => user?._id || user?.id || null;
 
-/* ── Trust Score Bar ─────────────────────────────── */
-function TrustScoreBar({ score, onClick }) {
-  const color = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--ember)' : '#E24B4A';
-  const label = score >= 70 ? 'Trusted' : score >= 40 ? 'Building' : 'New';
-
-  return (
-    <div
-      className={`trust-score${onClick ? ' trust-score--clickable' : ''}`}
-      onClick={onClick}
-      style={{
-        '--trust-color': color,
-        '--trust-score': `${score}%`,
-        '--trust-bg': `${color}22`,
-      }}
-    >
-      <div className="trust-score__header">
-        <span className="trust-score__label">Trust Score</span>
-        <div className="trust-score__right">
-          <span className="trust-score__badge">{label}</span>
-          <span className="trust-score__number">{score}/100</span>
-        </div>
-      </div>
-      <div className="trust-score__track">
-        <div className="trust-score__fill" />
-      </div>
-      {onClick && <p className="trust-score__link">🔗 View blockchain history →</p>}
-    </div>
-  );
-}
-
 /* ── Offline Banner ──────────────────────────────── */
 function OfflineBanner() {
   const [offline, setOffline] = useState(!navigator.onLine);
@@ -71,10 +41,7 @@ function PWAInstallBanner() {
     () => localStorage.getItem('pwa_dismissed') === '1'
   );
   useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setPrompt(e);
-    };
+    const handler = (e) => { e.preventDefault(); setPrompt(e); };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
@@ -84,10 +51,7 @@ function PWAInstallBanner() {
     const { outcome } = await prompt.userChoice;
     if (outcome === 'accepted') setPrompt(null);
   };
-  const dismiss = () => {
-    setDismissed(true);
-    localStorage.setItem('pwa_dismissed', '1');
-  };
+  const dismiss = () => { setDismissed(true); localStorage.setItem('pwa_dismissed', '1'); };
   return (
     <div className="pwa-banner">
       <div className="pwa-banner__icon">🪵</div>
@@ -119,35 +83,37 @@ export default function DashboardPage() {
   );
   const trustScore = user?.trustScore?.score || 50;
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
+  const handleLogout = () => { dispatch(logout()); navigate('/login'); };
   const handleUpgrade = () => {
     const businessName = prompt('Enter your business name (optional):');
     dispatch(upgradeToSeller({ businessName }));
   };
 
   if (!user) return null;
-  const initials = user.name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  const initials = user.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
 
+  // ── Seller nav — 4 items, trust score in grid only ──
   const sellerItems = [
-    { icon: '📦', label: 'My Listings', sub: 'Manage your listings', path: '/listings/my' },
-    { icon: '➕', label: 'New Listing', sub: 'Post by voice or text', path: '/listings/new' },
-    { icon: '💬', label: 'Messages', sub: unreadTotal > 0 ? `${unreadTotal} unread` : 'Your inbox', path: '/chat', badge: unreadTotal },
-    { icon: '🔗', label: 'Trust Score', sub: `Score: ${trustScore}/100`, path: userId ? `/trust/${userId}` : '/trust' },
+    { icon: '📦', label: 'My Listings',  sub: 'Manage your listings',   path: '/listings/my' },
+    { icon: '➕', label: 'New Listing',  sub: 'Post by voice or text',   path: '/listings/new' },
+    { icon: '💬', label: 'Messages',
+      sub: unreadTotal > 0 ? `${unreadTotal} unread` : 'Your inbox',
+      path: '/chat', badge: unreadTotal },
+    { icon: '🔗', label: 'Trust Score',  sub: `Score: ${trustScore}/100`,
+      path: userId ? `/trust/${userId}` : '/trust' },
   ];
 
+  // ── Buyer nav — no trust score ────────────────────
   const buyerItems = [
     { icon: '🔍', label: 'Browse Charcoal', sub: 'Find sellers near you', path: '/browse' },
-    { icon: '📍', label: 'Near Me', sub: `In ${(user.neighbourhood || 'your area').replace('_', ' ')}`, path: `/browse?neighbourhood=${user.neighbourhood}` },
-    { icon: '💬', label: 'Messages', sub: unreadTotal > 0 ? `${unreadTotal} unread` : 'Your inbox', path: '/chat', badge: unreadTotal },
-    { icon: '🪵', label: 'Become a Seller', sub: 'Post charcoal listings', path: null, action: 'upgrade' },
+    { icon: '📍', label: 'Near Me',
+      sub: `In ${(user.neighbourhood || 'your area').replace('_', ' ')}`,
+      path: `/browse?neighbourhood=${user.neighbourhood}` },
+    { icon: '💬', label: 'Messages',
+      sub: unreadTotal > 0 ? `${unreadTotal} unread` : 'Your inbox',
+      path: '/chat', badge: unreadTotal },
+    { icon: '🪵', label: 'Become a Seller', sub: 'Post charcoal listings',
+      path: null, action: 'upgrade' },
   ];
 
   const navItems = isSeller ? sellerItems : buyerItems;
@@ -165,9 +131,7 @@ export default function DashboardPage() {
               ⚙️ Admin
             </button>
           )}
-          <button onClick={handleLogout} className="dashboard-nav__logout-btn">
-            Log out
-          </button>
+          <button onClick={handleLogout} className="dashboard-nav__logout-btn">Log out</button>
         </div>
       </nav>
 
@@ -176,22 +140,14 @@ export default function DashboardPage() {
         <OfflineBanner />
         <PWAInstallBanner />
 
-        {/* Profile card */}
+        {/* Profile card — NO trust score bar here */}
         <div className="card profile-card">
           <div className="profile-card__header">
             <div className="profile-avatar">{initials}</div>
             <div className="profile-info">
               <h2 className="profile-name">{user.name}</h2>
               <div className="profile-tags">
-                <span
-                  className={`profile-tag ${
-                    isAdmin
-                      ? 'profile-tag--admin'
-                      : isSeller
-                      ? 'profile-tag--seller'
-                      : 'profile-tag--buyer'
-                  }`}
-                >
+                <span className={`profile-tag ${isAdmin ? 'profile-tag--admin' : isSeller ? 'profile-tag--seller' : 'profile-tag--buyer'}`}>
                   {isAdmin ? '⚙️ Admin' : isSeller ? '🪵 Seller' : '🛒 Buyer'}
                 </span>
                 {user.sellerProfile?.isVerified && (
@@ -201,7 +157,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className={`profile-details${isSeller ? ' profile-details--seller' : ''}`}>
+          {/* Info grid — phone + area */}
+          <div className="profile-details">
             <div className="profile-detail-cell">
               <div className="profile-detail-label">Phone</div>
               <div className="profile-detail-value">{user.phone}</div>
@@ -213,13 +170,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-
-          {isSeller && (
-            <TrustScoreBar
-              score={trustScore}
-              onClick={userId ? () => navigate(`/trust/${userId}`) : undefined}
-            />
-          )}
+          {/* Trust score removed from here — it lives in the nav grid card below */}
         </div>
 
         {/* Buyer upgrade banner */}
@@ -235,35 +186,20 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Seller quick post + trust chain card */}
+        {/* Seller quick post banner only — trust chain card REMOVED */}
         {isSeller && (
-          <>
-            <div className="seller-post-banner">
-              <div>
-                <p className="seller-post-banner__text">Ready to sell?</p>
-                <p className="seller-post-banner__subtitle">Post by voice 🎙️ or type</p>
-              </div>
-              <button onClick={() => navigate('/listings/new')} className="seller-post-banner__btn">
-                + Post →
-              </button>
+          <div className="seller-post-banner">
+            <div>
+              <p className="seller-post-banner__text">Ready to sell?</p>
+              <p className="seller-post-banner__subtitle">Post by voice 🎙️ or type</p>
             </div>
-
-            {userId && (
-              <div className="card trust-chain-card" onClick={() => navigate(`/trust/${userId}`)}>
-                <div className="trust-chain-card__header">
-                  <p className="trust-chain-card__title">🔗 Your Trust Score</p>
-                  <span className="trust-chain-card__link">View chain →</span>
-                </div>
-                <TrustScoreBar score={trustScore} />
-                <p className="trust-chain-card__desc">
-                  Increases with listings, conversations, and buyer ratings.
-                </p>
-              </div>
-            )}
-          </>
+            <button onClick={() => navigate('/listings/new')} className="seller-post-banner__btn">
+              + Post →
+            </button>
+          </div>
         )}
 
-        {/* Nav grid */}
+        {/* Nav grid — trust score appears ONCE here for sellers */}
         <div className="nav-grid">
           {navItems.map(({ icon, label, sub, path, badge, action }) => {
             const cardContent = (
