@@ -1,36 +1,44 @@
 /* ===================================================
-   DashboardPage.css — External styles for Dashboard
-   Assumes global CSS variables:
-   --cream, --coal, --ember, --ember-dark, --ember-light,
-   --green, --green-light, --ash, --border, --white
+   DashboardPage.css — Mobile‑first version
+   Base styles: small phones (< 480px)
+   Enhancements: tablet / desktop (>= 480px)
+   Uses global CSS variables
    =================================================== */
 
-/* ── Layout ─────────────────────────────────────── */
+/* ── Base layout ─────────────────────────────────── */
 .dashboard {
   min-height: 100vh;
   background: var(--cream);
 }
 
 .dashboard__content {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
-/* ── Navbar ─────────────────────────────────────── */
+@media (min-width: 480px) {
+  .dashboard__content {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+}
+
+/* ── Navbar ──────────────────────────────────────── */
 .dashboard-nav {
   background: var(--coal);
-  padding: 1rem 1.5rem;
+  padding: 0.8rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .dashboard-nav__logo {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   color: white;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .dashboard-nav__dot {
@@ -39,25 +47,46 @@
 
 .dashboard-nav__actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
+.dashboard-nav__admin-btn,
+.dashboard-nav__logout-btn {
+  font-size: 11px;
+  padding: 5px 10px;
+}
+
+@media (min-width: 480px) {
+  .dashboard-nav {
+    padding: 1rem 1.5rem;
+    flex-wrap: nowrap;
+  }
+  .dashboard-nav__logo {
+    font-size: 20px;
+  }
+  .dashboard-nav__admin-btn,
+  .dashboard-nav__logout-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  .dashboard-nav__logout-btn {
+    padding: 6px 14px;
+  }
+}
+
 .dashboard-nav__admin-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
   color: white;
-  padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 12px;
 }
 
 .dashboard-nav__logout-btn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255,255,255,0.2);
   color: white;
-  padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
@@ -65,19 +94,20 @@
 
 /* ── Profile Card ───────────────────────────────── */
 .profile-card {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .profile-card__header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 
 .profile-avatar {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: var(--ember);
   color: white;
@@ -86,8 +116,16 @@
   justify-content: center;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
   flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+  .profile-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
 }
 
 .profile-info {
@@ -96,8 +134,14 @@
 }
 
 .profile-name {
-  font-size: 18px;
+  font-size: 17px;
   margin-bottom: 3px;
+}
+
+@media (min-width: 480px) {
+  .profile-name {
+    font-size: 18px;
+  }
 }
 
 .profile-tags {
@@ -108,10 +152,17 @@
 
 /* Base tag style */
 .profile-tag {
-  font-size: 11px;
-  padding: 2px 10px;
+  font-size: 10px;
+  padding: 2px 8px;
   border-radius: 20px;
   font-weight: 500;
+}
+
+@media (min-width: 480px) {
+  .profile-tag {
+    font-size: 11px;
+    padding: 2px 10px;
+  }
 }
 
 .profile-tag--seller,
@@ -126,42 +177,76 @@
 }
 
 .profile-tag--verified {
-  font-size: 11px;
+  font-size: 10px;
   background: var(--green-light);
   color: var(--green);
-  padding: 2px 10px;
+  padding: 2px 8px;
   border-radius: 20px;
   font-weight: 500;
+}
+
+@media (min-width: 480px) {
+  .profile-tag--verified {
+    font-size: 11px;
+    padding: 2px 10px;
+  }
 }
 
 /* ── Profile Detail Grid ────────────────────────── */
 .profile-details {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
 .profile-details--seller {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 480px) {
+  .profile-details {
+    gap: 8px;
+  }
+  .profile-details--seller {
+    margin-bottom: 14px;
+  }
 }
 
 .profile-detail-cell {
   background: var(--cream);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 8px 10px;
+}
+
+@media (min-width: 480px) {
+  .profile-detail-cell {
+    padding: 10px 12px;
+  }
 }
 
 .profile-detail-label {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--ash);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 2px;
 }
 
+@media (min-width: 480px) {
+  .profile-detail-label {
+    font-size: 10px;
+  }
+}
+
 .profile-detail-value {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
+}
+
+@media (min-width: 480px) {
+  .profile-detail-value {
+    font-size: 13px;
+  }
 }
 
 /* ── Trust Score Bar ────────────────────────────── */
@@ -178,39 +263,66 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .trust-score__label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ash);
+}
+
+@media (min-width: 480px) {
+  .trust-score__label {
+    font-size: 12px;
+  }
 }
 
 .trust-score__right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .trust-score__badge {
-  font-size: 11px;
-  padding: 1px 8px;
+  font-size: 10px;
+  padding: 1px 6px;
   border-radius: 20px;
   font-weight: 500;
   background: var(--trust-bg, rgba(0,0,0,0.08));
   color: var(--trust-color, var(--ash));
 }
 
+@media (min-width: 480px) {
+  .trust-score__badge {
+    font-size: 11px;
+    padding: 1px 8px;
+  }
+}
+
 .trust-score__number {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--trust-color, var(--ash));
 }
 
+@media (min-width: 480px) {
+  .trust-score__number {
+    font-size: 13px;
+  }
+}
+
 .trust-score__track {
-  height: 7px;
+  height: 6px;
   background: var(--border);
   border-radius: 4px;
   overflow: hidden;
+}
+
+@media (min-width: 480px) {
+  .trust-score__track {
+    height: 7px;
+  }
 }
 
 .trust-score__fill {
@@ -222,61 +334,110 @@
 }
 
 .trust-score__link {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--ash);
-  margin-top: 5px;
+  margin-top: 4px;
   text-align: right;
+}
+
+@media (min-width: 480px) {
+  .trust-score__link {
+    font-size: 11px;
+    margin-top: 5px;
+  }
 }
 
 /* ── Offline Banner ─────────────────────────────── */
 .offline-banner {
   background: #BA7517;
   border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .offline-banner__icon {
-  font-size: 16px;
+  font-size: 15px;
+}
+
+@media (min-width: 480px) {
+  .offline-banner {
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+  .offline-banner__icon {
+    font-size: 16px;
+  }
 }
 
 .offline-banner__title {
   color: white;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   margin: 0;
 }
 
+@media (min-width: 480px) {
+  .offline-banner__title {
+    font-size: 13px;
+  }
+}
+
 .offline-banner__subtitle {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+  font-size: 10px;
   margin: 0;
+}
+
+@media (min-width: 480px) {
+  .offline-banner__subtitle {
+    font-size: 11px;
+  }
 }
 
 /* ── PWA Install Banner ─────────────────────────── */
 .pwa-banner {
   background: var(--coal);
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 14px;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 480px) {
+  .pwa-banner {
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 14px;
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
 }
 
 .pwa-banner__icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   background: var(--ember);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+  .pwa-banner__icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
 }
 
 .pwa-banner__content {
@@ -286,154 +447,285 @@
 .pwa-banner__title {
   color: white;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 12px;
   margin: 0;
 }
 
+@media (min-width: 480px) {
+  .pwa-banner__title {
+    font-size: 13px;
+  }
+}
+
 .pwa-banner__subtitle {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  font-size: 10px;
   margin: 2px 0 0;
+}
+
+@media (min-width: 480px) {
+  .pwa-banner__subtitle {
+    font-size: 11px;
+  }
 }
 
 .pwa-banner__actions {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+  .pwa-banner__actions {
+    gap: 6px;
+  }
 }
 
 .pwa-banner__later-btn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.6);
-  padding: 5px 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6);
+  padding: 4px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
+}
+
+@media (min-width: 480px) {
+  .pwa-banner__later-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
 }
 
 .pwa-banner__install-btn {
   background: var(--ember);
   color: white;
   border: none;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
+}
+
+@media (min-width: 480px) {
+  .pwa-banner__install-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
 }
 
 /* ── Upgrade Banner (Buyer) ─────────────────────── */
 .upgrade-banner {
   background: var(--coal);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 14px;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .upgrade-banner {
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 14px;
+    flex-wrap: nowrap;
+  }
 }
 
 .upgrade-banner__text {
   color: white;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
+}
+
+@media (min-width: 480px) {
+  .upgrade-banner__text {
+    font-size: 14px;
+  }
 }
 
 .upgrade-banner__subtitle {
   color: var(--ash);
-  font-size: 12px;
+  font-size: 11px;
   margin-top: 2px;
+}
+
+@media (min-width: 480px) {
+  .upgrade-banner__subtitle {
+    font-size: 12px;
+  }
 }
 
 .upgrade-banner__btn {
   background: var(--ember);
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   flex-shrink: 0;
-  margin-left: 12px;
+}
+
+@media (min-width: 480px) {
+  .upgrade-banner__btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    margin-left: 12px;
+  }
 }
 
 /* ── Seller Post Banner ─────────────────────────── */
 .seller-post-banner {
   background: var(--ember);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 14px;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .seller-post-banner {
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 14px;
+    flex-wrap: nowrap;
+  }
 }
 
 .seller-post-banner__text {
   color: white;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
+}
+
+@media (min-width: 480px) {
+  .seller-post-banner__text {
+    font-size: 14px;
+  }
 }
 
 .seller-post-banner__subtitle {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  font-size: 11px;
   margin-top: 2px;
+}
+
+@media (min-width: 480px) {
+  .seller-post-banner__subtitle {
+    font-size: 12px;
+  }
 }
 
 .seller-post-banner__btn {
   background: white;
   color: var(--ember-dark);
   border: none;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   flex-shrink: 0;
-  margin-left: 12px;
+}
+
+@media (min-width: 480px) {
+  .seller-post-banner__btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    margin-left: 12px;
+  }
 }
 
 /* ── Trust Chain Card ───────────────────────────── */
 .trust-chain-card {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   cursor: pointer;
+}
+
+@media (min-width: 480px) {
+  .trust-chain-card {
+    margin-bottom: 14px;
+  }
 }
 
 .trust-chain-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 480px) {
+  .trust-chain-card__header {
+    margin-bottom: 10px;
+  }
 }
 
 .trust-chain-card__title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
 }
 
+@media (min-width: 480px) {
+  .trust-chain-card__title {
+    font-size: 13px;
+  }
+}
+
 .trust-chain-card__link {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--ash);
 }
 
+@media (min-width: 480px) {
+  .trust-chain-card__link {
+    font-size: 11px;
+  }
+}
+
 .trust-chain-card__desc {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--ash);
-  margin-top: 8px;
+  margin-top: 6px;
+}
+
+@media (min-width: 480px) {
+  .trust-chain-card__desc {
+    font-size: 11px;
+    margin-top: 8px;
+  }
 }
 
 /* ── Nav Grid ───────────────────────────────────── */
 .nav-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 360px) {
+  .nav-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 }
 
 .nav-card {
   text-align: center;
-  padding: 1.25rem 1rem;
+  padding: 1rem 0.8rem;
   cursor: pointer;
   position: relative;
   transition: border-color 0.15s;
@@ -441,47 +733,89 @@
   display: block;
 }
 
+@media (min-width: 480px) {
+  .nav-card {
+    padding: 1.25rem 1rem;
+  }
+}
+
 .nav-card:hover {
   border-color: var(--ember);
 }
 
 .nav-card__icon {
-  font-size: 26px;
-  margin-bottom: 6px;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+@media (min-width: 480px) {
+  .nav-card__icon {
+    font-size: 26px;
+    margin-bottom: 6px;
+  }
 }
 
 .nav-card__badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 18px;
-  height: 18px;
+  top: 6px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--ember);
   color: white;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+@media (min-width: 480px) {
+  .nav-card__badge {
+    top: 8px;
+    right: 8px;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+}
+
 .nav-card__label {
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--coal);
 }
 
+@media (min-width: 480px) {
+  .nav-card__label {
+    font-size: 14px;
+  }
+}
+
 .nav-card__sub {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--ash);
   margin-top: 2px;
+}
+
+@media (min-width: 480px) {
+  .nav-card__sub {
+    font-size: 11px;
+  }
 }
 
 /* ── Footer ─────────────────────────────────────── */
 .dashboard-footer {
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--ash);
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 480px) {
+  .dashboard-footer {
+    font-size: 11px;
+    margin-top: 2rem;
+  }
 }

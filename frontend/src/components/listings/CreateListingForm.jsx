@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createListing, clearError, clearCreateSuccess } from '../../store/slices/listingSlice';
 import { NEIGHBOURHOODS } from '../../utils/validation';
+import './CreateListingForm.css';
 
 const CHARCOAL_TYPES = ['Hardwood (Miombo)', 'Softwood', 'Mixed', 'Other'];
 const UNITS = ['bag', 'tin', 'kg'];
@@ -58,42 +59,51 @@ export default function CreateListingForm({ onSuccess, voicePrefill }) {
     <form onSubmit={handleSubmit}>
       {error && <div className="error-msg">{error}</div>}
 
+      {/* Image upload */}
       <div className="form-group">
         <label className="form-label">Photo (optional)</label>
-        <div onClick={() => document.getElementById('img-upload').click()}
-          style={{ border: '2px dashed #E8E7E4', borderRadius: 10, height: 140,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', overflow: 'hidden', background: '#F9F8F5',
-            transition: 'border-color 0.15s' }}
-          onMouseEnter={(e) => e.currentTarget.style.borderColor = '#D85A30'}
-          onMouseLeave={(e) => e.currentTarget.style.borderColor = '#E8E7E4'}>
-          {imagePreview
-            ? <img src={imagePreview} alt="Preview"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : <div style={{ textAlign: 'center', color: '#888780' }}>
-                <div style={{ fontSize: 28, marginBottom: 6 }}>📷</div>
-                <p style={{ fontSize: 13 }}>Click to upload photo</p>
-                <p style={{ fontSize: 11, marginTop: 2 }}>JPG, PNG, WebP — max 5MB</p>
-              </div>}
+        <div
+          className="image-upload-zone"
+          onClick={() => document.getElementById('img-upload').click()}
+        >
+          {imagePreview ? (
+            <img src={imagePreview} alt="Preview" className="image-upload-zone__preview" />
+          ) : (
+            <div className="image-upload-zone__placeholder">
+              <div className="image-upload-zone__icon">📷</div>
+              <p className="image-upload-zone__text">Click to upload photo</p>
+              <p className="image-upload-zone__hint">JPG, PNG, WebP — max 5MB</p>
+            </div>
+          )}
         </div>
-        <input id="img-upload" type="file" accept="image/*"
-          onChange={handleImage} style={{ display: 'none' }} />
+        <input
+          id="img-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleImage}
+          className="image-upload-input"
+        />
       </div>
 
+      {/* Title */}
       <div className="form-group">
         <label className="form-label">
           Listing Title
           {voicePrefill?.suggestedTitle && (
-            <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--green)',
-              background: 'var(--green-light)', padding: '1px 8px', borderRadius: 10 }}>
-              🎙 from voice
-            </span>
+            <span className="voice-badge">🎙 from voice</span>
           )}
         </label>
-        <input type="text" placeholder="e.g. Fresh Miombo Charcoal — 25kg bags"
-          value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={80} />
+        <input
+          type="text"
+          placeholder="e.g. Fresh Miombo Charcoal — 25kg bags"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          maxLength={80}
+        />
       </div>
 
+      {/* Charcoal type */}
       <div className="form-group">
         <label className="form-label">Charcoal Type</label>
         <select value={charcoalType} onChange={(e) => setCharcoalType(e.target.value)}>
@@ -101,13 +111,23 @@ export default function CreateListingForm({ onSuccess, voicePrefill }) {
         </select>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      {/* Price + Unit */}
+      <div className="price-unit-grid">
         <div className="form-group">
           <label className="form-label">
-            Price (K) {voicePrefill?.suggestedPrice && <span style={{ fontSize: 10, color: 'var(--green)' }}>🎙</span>}
+            Price (K)
+            {voicePrefill?.suggestedPrice && (
+              <span className="voice-badge--inline"> 🎙</span>
+            )}
           </label>
-          <input type="number" placeholder="95" min="1"
-            value={pricePerBag} onChange={(e) => setPricePerBag(e.target.value)} required />
+          <input
+            type="number"
+            placeholder="95"
+            min="1"
+            value={pricePerBag}
+            onChange={(e) => setPricePerBag(e.target.value)}
+            required
+          />
         </div>
         <div className="form-group">
           <label className="form-label">Per</label>
@@ -117,35 +137,50 @@ export default function CreateListingForm({ onSuccess, voicePrefill }) {
         </div>
       </div>
 
+      {/* Quantity */}
       <div className="form-group">
         <label className="form-label">
-          Quantity {voicePrefill?.suggestedQty && <span style={{ fontSize: 10, color: 'var(--green)' }}>🎙</span>}
+          Quantity
+          {voicePrefill?.suggestedQty && (
+            <span className="voice-badge--inline"> 🎙</span>
+          )}
         </label>
-        <input type="number" placeholder="How many bags/tins?" min="1"
-          value={quantityAvailable} onChange={(e) => setQuantityAvailable(e.target.value)} required />
+        <input
+          type="number"
+          placeholder="How many bags/tins?"
+          min="1"
+          value={quantityAvailable}
+          onChange={(e) => setQuantityAvailable(e.target.value)}
+          required
+        />
       </div>
 
+      {/* Neighbourhood */}
       <div className="form-group">
         <label className="form-label">Neighbourhood</label>
         <select value={neighbourhood} onChange={(e) => setNeighbourhood(e.target.value)}>
-          {NEIGHBOURHOODS.map((n) => <option key={n} value={n}>{n.replace('_', ' ')}</option>)}
+          {NEIGHBOURHOODS.map((n) => (
+            <option key={n} value={n}>{n.replace('_', ' ')}</option>
+          ))}
         </select>
       </div>
 
+      {/* Description */}
       <div className="form-group">
         <label className="form-label">Description (optional)</label>
-        <textarea placeholder="Any extra details..."
-          value={description} onChange={(e) => setDescription(e.target.value)}
-          maxLength={300} rows={3}
-          style={{ width: '100%', padding: '11px 14px', border: '1px solid #E8E7E4',
-            borderRadius: 10, resize: 'vertical', outline: 'none',
-            fontFamily: 'inherit', fontSize: 15 }} />
-        <p style={{ fontSize: 11, color: '#888780', marginTop: 3, textAlign: 'right' }}>
-          {description.length}/300
-        </p>
+        <textarea
+          placeholder="Any extra details..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          maxLength={300}
+          rows={3}
+          className="description-textarea"
+        />
+        <p className="char-count">{description.length}/300</p>
       </div>
 
-      <button className="btn btn-ember" type="submit" disabled={loading}>
+      {/* Submit */}
+      <button className="btn btn-ember submit-btn" type="submit" disabled={loading}>
         {loading ? <span className="spinner" /> : '🪵 Post Listing'}
       </button>
     </form>
